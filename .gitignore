@@ -63,3 +63,4 @@ target/
 
 #project files to be ignored
 ashes/local_settings.py
+.DS_Store
