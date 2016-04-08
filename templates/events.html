@@ -1,0 +1,51 @@
+{% extends 'index.html' %} {% block body_block %}
+<div class="container">
+    <div class="row">
+        {% if errors %}
+                {% for i in errors %}
+                        <h3>{{ i }}</h3>
+                {% endfor %}
+
+        {% else %}
+            
+            <h3><center>Events</center></h3>
+            {% for event in events %}
+            <div class="col s6">
+              <div class="card small">
+                <div class="card-image waves-effect waves-block waves-light">
+                  <img class="activator" src="{{event.logo.url}}">
+                </div>
+                <div class="card-content">
+                  <p>{{event.name.text}}</p>
+                </div>
+                <div class="card-reveal">
+                  <span class="card-title grey-text text-darken-4">{{event.name.text}}<i class="material-icons right">close</i></span>
+                  <p>{{event.description.text}}</p>
+                </div>
+                <div class="card-action">
+                  <a href="{{event.url}}" target="_blank">View event on Eventbrite</a><span style="cursor:pointer" class="activator grey-text text-darken-4"><i class="material-icons right">more_vert</i></span>
+                </div>
+              </div>
+
+            </div>
+            {% endfor %}
+
+         {% endif %}
+    </div>
+    <div class="row">
+    <center>
+        <ul class="pagination">
+            {% for j in loop_times|slice:":10" %}
+            <li class="{% if j == page_no %}active teal lighten-2{%endif%} waves-effect"><a href="?{{query}}&page_no={{j}}">{{j}}</a></li>
+            {% endfor %}
+            {% if page_count != page_no %}
+            <a href="?{{query}}&page_no={{next_page}}" class="btn">Next »</a>
+            <a href="?{{query}}&page_no={{page_count}}" class="btn">Last »</a>
+            {% endif %}
+        </ul>
+        
+    </center>
+    </div>
+    
+</div>
+{% endblock %}
