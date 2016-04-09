@@ -15,3 +15,4 @@ class PlayerStats(models.Model):
 
 class UserPlayers(models.Model):
 	player_name = models.ForeignKey(PlayerStats)
+	search_target = models.CharField(max_length=100, null=True)
