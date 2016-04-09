@@ -3,12 +3,23 @@ from urllib.request import Request, urlopen
 #import json
 from django.shortcuts import render
 from django.conf import settings
-#import pdb
+import pdb
+from .models import PlayerStats
 
 
 def home(request):
 	try:
 		errors = []
+		pdb.set_trace()
+
+		players = PlayerStats.objects.all()
+		# print(players)
+
+		for player in players:
+			print(player.player_name)
+
+
+
 		#data_fetched_from_api = fetchEventbriteCategories()
 
 	# 	if data_fetched_from_api['status'] == "success":
