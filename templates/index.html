@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-  <title>Unwind - Eventbrite</title>
+  <title>Player Compare</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -27,9 +27,9 @@
     <div class="section no-pad-bot">
       <div class="container">
         <br><br>
-        <h1 class="header center teal-text text-lighten-2">Unwind</h1>
+        <h1 class="header center teal-text text-lighten-2">Ashes</h1>
         <div class="row center">
-          <h5 class="header col s12 light">Unwind - Plan your day out!</h5>
+          <h5 class="header col s12 light">Your Personalized Cricket Feed!</h5>
         </div>
         <br><br>
       </div>
@@ -43,14 +43,14 @@
     <div class="container">
       <div class="row">
         <div class="col l6 s12">
-          <h5 class="white-text">About Unwind</h5>
-          <p class="grey-text text-lighten-4">This application uses Eventbrite's API to fetch events related to the categories selected by the user.</p>
+          <h5 class="white-text">About Ashes</h5>
+          <p class="grey-text text-lighten-4">This application provides personalized content for cricket fantasy fanatics!</p>
         </div>
       </div>
     </div>
     <div class="footer-copyright">
       <div class="container">
-      Made by <a class="brown-text text-lighten-3">Nitish Goel</a>
+      Made by <a class="brown-text text-lighten-3">Team 15</a>
       </div>
     </div>
   </footer>
@@ -75,6 +75,11 @@ function clearForms() {
         document.forms[i].reset();
     }
 }
+
+  $(document).ready(function() {
+    $('select').material_select();
+  });
+
 
 //initial checkCount of zero 
 var checkCount = 0;
