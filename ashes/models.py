@@ -12,3 +12,6 @@ class PlayerStats(models.Model):
     caa = models.FloatField(default=0, null=True)
     last_bat_impact = models.FloatField(default=0, null=True)
     team_name = models.CharField(max_length=100, null=True)
+
+class UserPlayers(models.Model):
+	player_name = models.ForeignKey(PlayerStats)

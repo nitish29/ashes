@@ -1,0 +1,69 @@
+{% extends 'index.html' %} {% block body_block %}
+<div class="container">
+
+
+    <div class="section">
+        <div class="row">
+
+            {% if errors %}
+                        {% for i in errors %}
+                                <h3>{{ i }}</h3>
+                        {% endfor %}
+
+                {% else %}
+
+        </div>      
+                    <div class="row">
+                        <h4><center>Comparison Tool</center></h4>    
+                    </div>
+                    <div class="row">
+                        <center><h5>Please select players for comparison</h5></center>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <select>
+                                <option value="">Choose your option</option>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                            </select>
+                            <label>Player 1</label>
+                        </div>
+
+                        <div class="input-field col s6">
+                            <select>
+                                <option value="">Choose your option</option>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                            </select>
+                            <label>Player 2</label>
+                        </div>
+                    </div>
+
+                    <form method="get" action="/events">
+                    <div class="row">
+                    {% for i in categories %}
+                      <div class="col s3">
+                        <div class="card-panel teal">
+                          <span class="white-text">{{i.name}}</span>
+                        </div>
+                      </div>
+                    <div class="col s1">
+                    <p>
+                      <input type="checkbox" id="{{i.id}}" name="category_id" value={{i.id}} />
+                      <label for="{{i.id}}" style="margin-top: 13px;"></label>
+                    </p>
+                    </div>
+                    {% endfor %}
+                    </div>
+                    <input type="hidden" name="page_no" value=1>       
+                    <center><input id="search" class="btn btn-medium" type="submit" value="Submit" /></center>
+                    </form>
+
+                {% endif %}
+            
+        
+    </div>
+</div>
+{% endblock %}

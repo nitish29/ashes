@@ -10,7 +10,7 @@ from .models import PlayerStats
 def home(request):
 	try:
 		errors = []
-		pdb.set_trace()
+		#pdb.set_trace()
 
 		players = PlayerStats.objects.all()
 		# print(players)
@@ -45,4 +45,4 @@ def home(request):
 		errors.append('Error Completing request')
 	# 	context = { 'errors' : errors }
 
-	return render(request, "categories.html")
+	return render(request, "playercompare.html")
