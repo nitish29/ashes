@@ -110,3 +110,40 @@ $(document).ready(function() {
 });
 </script>
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  
+  <script type="text/javascript">
+    
+      google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawStuff);
+
+      function drawStuff() {
+        var data = new google.visualization.arrayToDataTable([
+          ['Players', 'Positive Tweet Percentage', { role: 'style'} ],
+          [{{myPlayerList[0].player_name.player_name}}, 44, 'color: #26a69a'],
+          ["Player 2", 31, 'color: #26a69a'],
+          ["Player 3", 12, 'color: #26a69a'],
+        ]);
+
+        var options = {
+          //title: 'Player Sentiments',
+          width: 900,
+          height: 300,
+          legend: { position: 'none' },
+          chart: { title: 'Positive Sentiments',
+                   subtitle: 'popularity by percentage' },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Percentage'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "90%" },
+          //color: {'green'}
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
+        chart.draw(data, options);
+      };
+  </script>
+
