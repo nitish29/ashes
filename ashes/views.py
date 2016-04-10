@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.conf import settings
 import pdb
 from .models import PlayerStats, UserPlayers
+from operator import itemgetter
 
 
 def home(request):
@@ -18,6 +19,9 @@ def home(request):
 
 		get_player_list = getPlayerSentimentList(userPlayers)
 		print(get_player_list)
+		player_list_sorted_by_neutral = sortPlayerList(get_player_list, 'neutral_percentage')
+		player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')
+		player_list_sorted_by_negative = sortPlayerList(get_player_list, 'negative_percentage')
 
 		context = {'allPlayerList': players, 'myPlayerList': userPlayers}
 
@@ -105,4 +109,10 @@ def getPlayerSentimentList(UserPlayers):
 
 	return player_list
 
-			    
+def sortPlayerList(player_list_to_sort, sortingParameter):
+	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter)) 
+
+	print (sortedPlayerlist)
+
+
+		    
