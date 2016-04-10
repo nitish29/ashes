@@ -16,11 +16,12 @@
 
           
 </head>
- <nav>
+  <nav>
         <div class="nav-wrapper teal">
           <a href="/" class="waves-effect waves-light btn-large">Home</a>
+          <a href="/playerPage" class="waves-effect waves-light btn-large">Players</a>
         </div>
-      </nav>
+  </nav>
 <body onLoad="clearForms()" onUnload="clearForms()">
 
   <div id="index-banner" class="parallax-container">
@@ -115,23 +116,25 @@ $(document).ready(function() {
   <script type="text/javascript">
     
       google.charts.load('current', {'packages':['bar']});
-      google.charts.setOnLoadCallback(drawStuff);
+      google.charts.setOnLoadCallback(drawPositiveSentimentChart);
+      google.charts.setOnLoadCallback(drawNeutralSentimentChart);
+      google.charts.setOnLoadCallback(drawNegativeSentimentChart);
 
-      function drawStuff() {
-        var data = new google.visualization.arrayToDataTable([
-          ['Players', 'Positive Tweet Percentage', { role: 'style'} ],
-          [{{myPlayerList[0].player_name.player_name}}, 44, 'color: #26a69a'],
-          ["Player 2", 31, 'color: #26a69a'],
-          ["Player 3", 12, 'color: #26a69a'],
+      function drawPositiveSentimentChart() {
+        var positive_chart_data = new google.visualization.arrayToDataTable([
+          ['Players', 'Positive Tweet Percentage' ],
+          ["{{positive_player_list.player_1_name}}", {{positive_player_list.player_1_percentage}}],
+          ["{{positive_player_list.player_2_name}}", {{positive_player_list.player_2_percentage}}],
+          ["{{positive_player_list.player_3_name}}", {{positive_player_list.player_3_percentage}}]
         ]);
 
-        var options = {
+        var positive_chart_options = {
           //title: 'Player Sentiments',
           width: 900,
           height: 300,
           legend: { position: 'none' },
           chart: { title: 'Positive Sentiments',
-                   subtitle: 'popularity by percentage' },
+                   subtitle: 'Popularity by Percentage' },
           bars: 'horizontal', // Required for Material Bar Charts.
           axes: {
             x: {
@@ -142,8 +145,65 @@ $(document).ready(function() {
           //color: {'green'}
         };
 
-        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
-        chart.draw(data, options);
+        var chart = new google.charts.Bar(document.getElementById('pos_sentiment_div'));
+        chart.draw(positive_chart_data, positive_chart_options);
+      };
+
+      function drawNeutralSentimentChart() {
+        var neutral_chart_data = new google.visualization.arrayToDataTable([
+          ['Players', 'Neutral Tweet Percentage'],
+          ["{{neutral_player_list.player_1_name}}", {{neutral_player_list.player_1_percentage}}],
+          ["{{neutral_player_list.player_2_name}}", {{neutral_player_list.player_2_percentage}}],
+          ["{{neutral_player_list.player_3_name}}", {{neutral_player_list.player_3_percentage}}]
+        ]);
+
+        var neutral_chart_options = {
+          //title: 'Player Sentiments',
+          width: 900,
+          height: 300,
+          legend: { position: 'none' },
+          chart: { title: 'Neutral Sentiments',
+                   subtitle: 'Popularity by Percentage' },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Percentage'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "90%" },
+          colors: ['#f4b400']
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('neutral_sentiment_div'));
+        chart.draw(neutral_chart_data, neutral_chart_options);
+      };
+      function drawNegativeSentimentChart() {
+        var negative_chart_data = new google.visualization.arrayToDataTable([
+          ['Players', 'Negative Tweet Percentage'],
+          ["{{negative_player_list.player_1_name}}", {{negative_player_list.player_1_percentage}}],
+          ["{{negative_player_list.player_2_name}}", {{negative_player_list.player_2_percentage}}],
+          ["{{negative_player_list.player_3_name}}", {{negative_player_list.player_3_percentage}}]
+        ]);
+
+        var negative_chart_options = {
+          //title: 'Player Sentiments',
+          width: 900,
+          height: 300,
+          legend: { position: 'none' },
+          chart: { title: 'Negative Sentiments',
+                   subtitle: 'Popularity by Percentage' },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Percentage'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "90%" },
+          colors: ['#db4437']
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('neg_sentiment_div'));
+        chart.draw(negative_chart_data, negative_chart_options);
       };
   </script>
 

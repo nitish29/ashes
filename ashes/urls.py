@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home, name='home'),
     url(r'^playerCompareAction$', views.playerCompareAction, name='playerCompareAction'),
+    url(r'^playerPage$', views.playerPage, name='playerPage'),
 ]

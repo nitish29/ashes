@@ -17,13 +17,12 @@ def home(request):
 		userPlayers = UserPlayers.objects.all()
 		#pdb.set_trace()
 
-		get_player_list = getPlayerSentimentList(userPlayers)
-		print(get_player_list)
-		player_list_sorted_by_neutral = sortPlayerList(get_player_list, 'neutral_percentage')
-		player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')
-		player_list_sorted_by_negative = sortPlayerList(get_player_list, 'negative_percentage')
+		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers)
+		neutral_chart_dict = sentiment_wise_player_dict['neutral']
+		positive_chart_dict = sentiment_wise_player_dict['positive']
+		negative_chart_dict = sentiment_wise_player_dict['negative']
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
 
 	except:
 		
@@ -31,6 +30,19 @@ def home(request):
 		context = {'errors': errors}
 
 	return render(request, "playercompare.html", context)
+
+def playerPage(request):
+		try:
+			errors = []
+			userPlayers = UserPlayers.objects.all()
+			context = {'myPlayerList': userPlayers}
+
+
+		except:
+			errors.append('Error Completing request')
+			context = {'errors': errors}
+
+		return render(request, "player.html", context)
 
 
 def playerCompareAction(request):
@@ -54,8 +66,12 @@ def playerCompareAction(request):
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
 
+		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers)
+		neutral_chart_dict = sentiment_wise_player_dict['neutral']
+		positive_chart_dict = sentiment_wise_player_dict['positive']
+		negative_chart_dict = sentiment_wise_player_dict['negative']
 		
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
 
 	except:
 		errors.append('Error Completing request')
@@ -89,7 +105,7 @@ def getPlayerSentimentList(UserPlayers):
 			player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet')
 
 			total_records_player = player_sentiment_result['response']['numFound']
-			print(total_records_player)
+			#print(total_records_player)
 			count_neutral = 0
 			count_positive = 0
 			count_negative = 0
@@ -110,9 +126,37 @@ def getPlayerSentimentList(UserPlayers):
 	return player_list
 
 def sortPlayerList(player_list_to_sort, sortingParameter):
-	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter)) 
+	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter), reverse=True) 
+	#print(sortedPlayerlist)
+	return sortedPlayerlist
 
-	print (sortedPlayerlist)
+def playerSentimentAnalysis(userPlayers):
+	get_player_list = getPlayerSentimentList(userPlayers)
+	#print(get_player_list)
+	player_list_sorted_by_neutral = sortPlayerList(get_player_list, 'neutral_percentage')
+	player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')
+	player_list_sorted_by_negative = sortPlayerList(get_player_list, 'negative_percentage')
 
+	player_neutral_rank1 = player_list_sorted_by_neutral[0]
+	player_neutral_rank2 = player_list_sorted_by_neutral[1]
+	player_neutral_rank3 = player_list_sorted_by_neutral[2]
+	# print(player_list_sorted_by_neutral)
+	# print(player_neutral_rank2['player_name'])
+	# print(player_neutral_rank3['player_name'])
 
+	player_positive_rank1 = player_list_sorted_by_positive[0]
+	player_positive_rank2 = player_list_sorted_by_positive[1]
+	player_positive_rank3 = player_list_sorted_by_positive[2]
+
+	player_negative_rank1 = player_list_sorted_by_negative[0]
+	player_negative_rank2 = player_list_sorted_by_negative[1]
+	player_negative_rank3 = player_list_sorted_by_negative[2]
+
+	neutral_chart_dict = { 'player_1_name' : player_neutral_rank1['player_name'], 'player_1_percentage' : player_neutral_rank1['neutral_percentage'], 'player_2_name' : player_neutral_rank2['player_name'], 'player_2_percentage' : player_neutral_rank2['neutral_percentage'], 'player_3_name' : player_neutral_rank3['player_name'], 'player_3_percentage' : player_neutral_rank3['neutral_percentage']}
+
+	positive_chart_dict = { 'player_1_name' : player_positive_rank1['player_name'], 'player_1_percentage' : player_positive_rank1['positive_percentage'], 'player_2_name' : player_positive_rank2['player_name'], 'player_2_percentage' : player_positive_rank2['positive_percentage'], 'player_3_name' : player_positive_rank3['player_name'], 'player_3_percentage' : player_positive_rank3['positive_percentage']}
+
+	negative_chart_dict = { 'player_1_name' : player_negative_rank1['player_name'], 'player_1_percentage' : player_negative_rank1['negative_percentage'], 'player_2_name' : player_negative_rank2['player_name'], 'player_2_percentage' : player_negative_rank2['negative_percentage'], 'player_3_name' : player_negative_rank3['player_name'], 'player_3_percentage' : player_negative_rank3['negative_percentage']}
+
+	return {'neutral' : neutral_chart_dict, 'positive' : positive_chart_dict, 'negative' : negative_chart_dict}
 		    
