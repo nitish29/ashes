@@ -35,8 +35,17 @@ def playerPage(request):
 		try:
 			errors = []
 			userPlayers = UserPlayers.objects.all()
-			context = {'myPlayerList': userPlayers}
 
+			if request.method == 'GET' and 'myPlayerSelect' in request.GET:				
+				my_player = UserPlayers.objects.get(player_name=request.GET['myPlayerSelect'])
+				player_wise_articles = makeSolrCall(my_player.articles_search_target, 'articles')
+				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets')
+				print(player_wise_articles['response']['docs'])
+
+				context = {'myPlayerList': userPlayers, 'articles' : player_wise_articles['response']['docs'], 'myPlayer' : my_player,
+				'playerTweets' : player_wise_tweets['response']['docs']}
+			else:
+				context = {'myPlayerList': userPlayers}
 
 		except:
 			errors.append('Error Completing request')
@@ -80,19 +89,31 @@ def playerCompareAction(request):
 	return render(request, "playercompare.html", context)
 
 
-def makeSolrCall(search_query, type):
-    #pdb.set_trace()
+def makeSolrCall(search_query, queryType):
+	#pdb.set_trace()
 
-    if type == "tweet":
-        request_params = urllib.parse.urlencode(
-            {'q': '*:*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'fl':'targeted_sentiment', 'fq':'search_target:'+search_query})
-        request_params = request_params.encode('utf-8')
-        req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
-                                     request_params)
+	if queryType == "tweet":
+		request_params = urllib.parse.urlencode(
+			{'q': '*:*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'fl':'targeted_sentiment', 'fq':'search_target:'+search_query})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
+									 request_params)
+	elif queryType == "articles":
+		request_params = urllib.parse.urlencode(
+			{'q': 'keywords:*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 3, 'start': 0, 'fl':'title,article_url,date,summary'})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen('http://localhost:7574/solr/articlesCore/select',
+									 request_params)
+	elif queryType == "playerTweets":
+		request_params = urllib.parse.urlencode(
+			{'q': 'text:*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 6, 'start': 0, 'fl':'username,permalink,text,retweets,favorites,date'})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
+									 request_params)
 
-    content = req.read()
-    decoded_json_content = json.loads(content.decode())
-    return decoded_json_content
+	content = req.read()
+	decoded_json_content = json.loads(content.decode())
+	return decoded_json_content
 
 
 def getPlayerSentimentList(UserPlayers):
@@ -159,4 +180,4 @@ def playerSentimentAnalysis(userPlayers):
 	negative_chart_dict = { 'player_1_name' : player_negative_rank1['player_name'], 'player_1_percentage' : player_negative_rank1['negative_percentage'], 'player_2_name' : player_negative_rank2['player_name'], 'player_2_percentage' : player_negative_rank2['negative_percentage'], 'player_3_name' : player_negative_rank3['player_name'], 'player_3_percentage' : player_negative_rank3['negative_percentage']}
 
 	return {'neutral' : neutral_chart_dict, 'positive' : positive_chart_dict, 'negative' : negative_chart_dict}
-		    
+			

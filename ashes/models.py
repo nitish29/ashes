@@ -14,5 +14,6 @@ class PlayerStats(models.Model):
     team_name = models.CharField(max_length=100, null=True)
 
 class UserPlayers(models.Model):
-	player_name = models.ForeignKey(PlayerStats)
-	search_target = models.CharField(max_length=100, null=True)
+    player_name = models.ForeignKey(PlayerStats)
+    search_target = models.CharField(max_length=100, null=True)
+    articles_search_target = models.CharField(max_length=100, null=True)
