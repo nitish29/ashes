@@ -15,7 +15,7 @@
         </div>  
         <form method="get" action="/playerPage"> 
             <div class="row">
-                <h4><center>My Player Data</center></h4>    
+                <h4 style="color:green"><center>My Player Data</center></h4>    
             </div>
             <div class="row">
                 <div class="input-field col s6">
@@ -32,7 +32,7 @@
                     <label>Player 1</label>
                 </div>
                 <div class="col s6">
-                    <input id="search" class="btn btn-medium" type="submit" value="Go" />
+                    <input id="search" class="btn btn-medium green" type="submit" value="Go" />
                 </div>
             </div>
                   
@@ -40,7 +40,7 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h4><center>Player Articles</center></h4>    
+            <h4 style="color:green"><center>Player Articles</center></h4>    
         </div>
 
         {% if articles %}
@@ -48,7 +48,7 @@
             <div class="row">
                 {% for single_article in articles %}
                 <div class="col s12">
-                  <div class="card teal accent-4">
+                  <div class="card green lighten-4">
                     <div class="card-content black-text">
                       <span class="card-title"><center><b>{{single_article.title}}</b></center></span>
                             <table>
@@ -77,12 +77,12 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h4><center>Tweets</center></h4>    
+            <h4 style="color:#2196f3"><center>Tweets</center></h4>    
         </div>
         <div class="row">
                 {% for single_tweet in playerTweets %}
                 <div class="col s12">
-                  <div class="card light-blue lighten-2">
+                  <div class="card light-blue lighten-3">
                     <div class="card-content white-text">
                       <span class="card-title"><center><b>{{single_tweet.username}}</b></center></span>
                         <div class="card-content">

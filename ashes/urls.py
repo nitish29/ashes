@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^playerCompareAction$', views.playerCompareAction, name='playerCompareAction'),
     url(r'^playerPage$', views.playerPage, name='playerPage'),
+    url(r'^runScript$', views.runScript, name='runScript'),
 ]
