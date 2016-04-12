@@ -44,9 +44,18 @@ def playerPage(request):
 				player_wise_articles = makeSolrCall(my_player.articles_search_target, 'articles')
 				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets')
 				print(player_wise_articles['response']['docs'])
+				
+				player_match_data = []
+
+				for player_match_record in PlayerMatchData.objects.filter(player_name=request.GET['myPlayerSelect']):
+					player_match_data.append(player_match_record)
+				print("printing all rows....")
+				print (player_match_data)
+
+				player_sentiment_dict = getIndividualPlayerSentiment(my_player)
 
 				context = {'myPlayerList': userPlayers, 'articles' : player_wise_articles['response']['docs'], 'myPlayer' : my_player,
-				'playerTweets' : player_wise_tweets['response']['docs']}
+				'playerTweets' : player_wise_tweets['response']['docs'], 'match_data' : player_match_data, 'player_sentiment_dict': player_sentiment_dict}
 			else:
 				context = {'myPlayerList': userPlayers}
 
@@ -117,6 +126,34 @@ def makeSolrCall(search_query, queryType):
 	content = req.read()
 	decoded_json_content = json.loads(content.decode())
 	return decoded_json_content
+
+
+def getIndividualPlayerSentiment(UserPlayers):
+	#player_list = []
+	playerName = UserPlayers.player_name.player_name
+	playerSearchTarget = UserPlayers.search_target
+	player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet')
+
+	total_records_player = player_sentiment_result['response']['numFound']
+	#print(total_records_player)
+	count_neutral = 0
+	count_positive = 0
+	count_negative = 0
+	for individual_sentiments in player_sentiment_result['response']['docs']:
+		if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+			count_neutral = count_neutral + 1
+		elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+			count_positive = count_positive + 1
+		else:
+			count_negative = count_negative + 1
+	positive_percentage = ( float(count_positive) / float(total_records_player) ) * 100
+	negative_percentage = ( float(count_negative) / float(total_records_player) ) * 100
+	neutral_percentage = ( float(count_neutral) / float(total_records_player) ) * 100
+
+	player_dict = {'player_name': playerName, 'positive_tweet_count': count_positive, 'negative_tweet_count': count_negative, 'neutral_tweet_count': count_neutral, 'total_count': total_records_player, 'positive_percentage': positive_percentage, 'negative_percentage': negative_percentage, 'neutral_percentage': neutral_percentage}
+	# player_list.append(player_dict)
+
+	return player_dict
 
 
 def getPlayerSentimentList(UserPlayers):
@@ -199,7 +236,7 @@ def runScript(request):
 			print(player_json)
 			with open('/home/rachna/PlayerProcess/scriptjsonfiles/playerJson/' + player_json ) as f:
 				player_data = json.load(f)
-			with open('/home/rachna/PlayerProcess/scriptjsonfiles/T20_Match_Data/IND_vs_NZ_15Mar.json', 'r') as f:
+			with open('/home/rachna/PlayerProcess/scriptjsonfiles/T20_Match_Data/IND_vs_BAN_23Mar.json', 'r') as f:
 				match_data = json.load(f)
 				
 			index = 0
@@ -372,17 +409,8 @@ def runScript(request):
 				my_player.total_runs = totalRuns + runs_scored
 				my_player.total_outs = totalOuts + isOut
 				my_player.innings = completedInnings + 1
-
-				if completedInnings == 0:
-					my_player.batting_impact_list = str(batting_impact_score)
-				else:
-					my_player.batting_impact_list = str(player_data[0]['BattingImpactList']) + "," + str(batting_impact_score)
-
-				if completedInnings == 0:
-					my_player.runs_in_matches = str(runs_scored)
-				else:
-					my_player.runs_in_matches = str(player_data[0]['RunsInMatches']) + "," + str(runs_scored)
-				 
+				my_player.batting_impact_list = player_data[0]['BattingImpactList']
+				my_player.runs_in_matches = player_data[0]['RunsInMatches']
 				my_player.batting_avg = batting_avg
 				my_player.last_bat_impact = batting_impact_score
 				my_player.save()

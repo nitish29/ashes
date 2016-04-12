@@ -1,4 +1,28 @@
 {% extends 'index.html' %} {% block body_block %}
+
+<script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Sentiment', 'Percentage'],
+          ['Positive Sentiment', {{player_sentiment_dict.positive_percentage}}],
+          ['Negative Sentiment', {{player_sentiment_dict.negative_percentage}}],
+          ['Neutral Sentiment', {{player_sentiment_dict.neutral_percentage}}]
+        ]);
+
+        var options = {
+          title: '{{player_sentiment_dict.player_name}}'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+
 <div class="container">
 
 
@@ -98,6 +122,49 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        <div class="divider"></div>
+        <div class="row">
+            <h4 style="color:#2196f3"><center>Recent Match Stats</center></h4>    
+        </div>
+
+                <div class="row">
+                
+                <div class="col s12">                
+                            <table class = "bordered highlight">
+                                <thead>
+                                    <th>Date</th>
+                                    <th>Runs</th>
+                                    <th>Fours</th>
+                                    <th>Sixes</th>
+                                    <th>Strike Rate</th>
+                                    <th>Opponent Team</th>
+                                    <th>Match Result</th>
+                                </thead>
+                                <tbody>
+                                {% for match_record in match_data %}
+                                      <tr>
+                                        <td>{{match_record.match_date}}</td>
+                                        <td>{{match_record.runs}}</td>
+                                        <td>{{match_record.fours}}</td>
+                                        <td>{{match_record.six}}</td>
+                                        <td>{{match_record.strike_rate}}</td>
+                                        <td>{{match_record.opponent_team_name}}</td>
+                                        <td>{{match_record.match_status}}</td>
+                                      </tr>
+                                  {% endfor %}
+                                </tbody>
+                            </table>
+                    </div>
+            </div>
+            <div class="divider"></div>
+            <div class="row">
+                <h4 style="color:#2196f3"><center>Sentiment Analysis</center></h4>    
+            </div>
+            <div class="row">
+                <div id="piechart" style="width: 900px; height: 500px;"></div>
+            </div>
+
         <!--<div class="divider"></div>
         <div class="row">
             <h4><center>Twitter Sentiment Analysis</center></h4>    
