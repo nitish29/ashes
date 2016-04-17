@@ -16,11 +16,19 @@ def home(request):
 		errors = []
 		#pdb.set_trace()
 
+		if request.method == 'GET' and 'week' in request.GET:
+			print(request.GET['week'])
+			week = request.GET['week']
+		else:
+			week = 'week1'
+			print(week)
+
+
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
 		#pdb.set_trace()
 
-		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers)
+		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
 		neutral_chart_dict = sentiment_wise_player_dict['neutral']
 		positive_chart_dict = sentiment_wise_player_dict['positive']
 		negative_chart_dict = sentiment_wise_player_dict['negative']
@@ -39,10 +47,17 @@ def playerPage(request):
 			errors = []
 			userPlayers = UserPlayers.objects.all()
 
+			if request.method == 'GET' and 'week' in request.GET:
+				print(request.GET['week'])
+				week = request.GET['week']
+			else:
+				week = 'week1'
+				print(week)
+
 			if request.method == 'GET' and 'myPlayerSelect' in request.GET:				
 				my_player = UserPlayers.objects.get(player_name=request.GET['myPlayerSelect'])
-				player_wise_articles = makeSolrCall(my_player.articles_search_target, 'articles')
-				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets')
+				player_wise_articles = makeSolrCall(my_player.articles_search_target, 'articles', week)
+				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets', week)
 				print(player_wise_articles['response']['docs'])
 				
 				player_match_data = []
@@ -52,7 +67,7 @@ def playerPage(request):
 				print("printing all rows....")
 				print (player_match_data)
 
-				player_sentiment_dict = getIndividualPlayerSentiment(my_player)
+				player_sentiment_dict = getIndividualPlayerSentiment(my_player, week)
 
 				context = {'myPlayerList': userPlayers, 'articles' : player_wise_articles['response']['docs'], 'myPlayer' : my_player,
 				'playerTweets' : player_wise_tweets['response']['docs'], 'match_data' : player_match_data, 'player_sentiment_dict': player_sentiment_dict}
@@ -73,6 +88,9 @@ def playerCompareAction(request):
 			my_player = UserPlayers.objects.get(player_name=request.GET['myPlayerSelect'])
 		if request.GET['allPlayerSelect']:
 			other_player = PlayerStats.objects.get(player_name=request.GET['allPlayerSelect'])
+		if request.method == 'GET' and 'week' in request.GET:
+			print(request.GET['week'])
+			week = request.GET['week']
 
 		my_player_caa = my_player.player_name.caa
 		other_player_caa = other_player.caa
@@ -87,7 +105,7 @@ def playerCompareAction(request):
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
 
-		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers)
+		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
 		neutral_chart_dict = sentiment_wise_player_dict['neutral']
 		positive_chart_dict = sentiment_wise_player_dict['positive']
 		negative_chart_dict = sentiment_wise_player_dict['negative']
@@ -101,24 +119,34 @@ def playerCompareAction(request):
 	return render(request, "playercompare.html", context)
 
 
-def makeSolrCall(search_query, queryType):
-	#pdb.set_trace()
+def makeSolrCall(search_query, queryType, week):
+	
+	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
+
+	if week == 'week1':
+		date = 'date:[2016-03-15T00:00:00Z TO 2016-03-20T00:00:00Z]'
+	elif week == 'week2':
+		date = 'date:[2016-03-21T00:00:00Z TO 2016-03-27T00:00:00Z]'
+	else:
+		date = 'date:[2016-03-28T00:00:00Z TO 2016-04-04T00:00:00Z]'
 
 	if queryType == "tweet":
 		request_params = urllib.parse.urlencode(
-			{'q': '*:*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'fl':'targeted_sentiment', 'fq':'search_target:'+search_query})
+			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'defType': 'dismax','qf': 'search_target','fl':'targeted_sentiment', 'fq': date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
 									 request_params)
 	elif queryType == "articles":
+		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': 'keywords:*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 3, 'start': 0, 'fl':'title,article_url,date,summary'})
+			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 3, 'start': 0, 'defType': 'dismax','qf': 'title keywords summary content','fl':'title,article_url,date,summary', 'fq': date, 'bq': 'title^20 summary^10 date^5 ', 'sort': 'date desc'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen('http://localhost:7574/solr/articlesCore/select',
 									 request_params)
 	elif queryType == "playerTweets":
+		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': 'text:*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 6, 'start': 0, 'fl':'username,permalink,text,retweets,favorites,date'})
+			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 100, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
 									 request_params)
@@ -128,11 +156,11 @@ def makeSolrCall(search_query, queryType):
 	return decoded_json_content
 
 
-def getIndividualPlayerSentiment(UserPlayers):
+def getIndividualPlayerSentiment(UserPlayers, week):
 	#player_list = []
 	playerName = UserPlayers.player_name.player_name
 	playerSearchTarget = UserPlayers.search_target
-	player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet')
+	player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet', week)
 
 	total_records_player = player_sentiment_result['response']['numFound']
 	#print(total_records_player)
@@ -156,14 +184,14 @@ def getIndividualPlayerSentiment(UserPlayers):
 	return player_dict
 
 
-def getPlayerSentimentList(UserPlayers):
+def getPlayerSentimentList(UserPlayers, week):
 
 	player_list = []
 
 	for individual_player in UserPlayers:
 			playerName = individual_player.player_name.player_name
 			playerSearchTarget = individual_player.search_target
-			player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet')
+			player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet', week)
 
 			total_records_player = player_sentiment_result['response']['numFound']
 			#print(total_records_player)
@@ -191,8 +219,8 @@ def sortPlayerList(player_list_to_sort, sortingParameter):
 	#print(sortedPlayerlist)
 	return sortedPlayerlist
 
-def playerSentimentAnalysis(userPlayers):
-	get_player_list = getPlayerSentimentList(userPlayers)
+def playerSentimentAnalysis(userPlayers, week):
+	get_player_list = getPlayerSentimentList(userPlayers, week)
 	#print(get_player_list)
 	player_list_sorted_by_neutral = sortPlayerList(get_player_list, 'neutral_percentage')
 	player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')

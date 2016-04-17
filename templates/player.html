@@ -62,12 +62,13 @@
                   
         </form>
 
+        
+
+        {% if articles %}
         <div class="divider"></div>
         <div class="row">
             <h4 style="color:green"><center>Player Articles</center></h4>    
         </div>
-
-        {% if articles %}
 
             <div class="row">
                 {% for single_article in articles %}
@@ -123,9 +124,10 @@
             </div>
         {% endif %}
 
+    {% if playerTweets %}
         <div class="divider"></div>
         <div class="row">
-            <h4 style="color:#2196f3"><center>Recent Match Stats</center></h4>    
+            <h4 style="color:green"><center>Recent Match Stats</center></h4>    
         </div>
 
                 <div class="row">
@@ -164,6 +166,7 @@
             <div class="row">
                 <div id="piechart" style="width: 900px; height: 500px;"></div>
             </div>
+        {% endif %}
 
         <!--<div class="divider"></div>
         <div class="row">
