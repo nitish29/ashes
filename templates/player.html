@@ -22,6 +22,12 @@
       }
     </script>
 
+    <script type="text/javascript">
+
+         $('input[name=week]').val('week3');
+
+    </script>
+
 
 <div class="container">
 
@@ -38,6 +44,32 @@
 
         </div>  
         <form method="get" action="/playerPage"> 
+            <div class="row">
+                    <p>
+                        {% if request.GET.week == 'week1' %}
+                      <input name="week" type="radio" id="week1" value="week1" checked />
+                        {% else %}
+                      <input name="week" type="radio" id="week1" value="week1"/>
+                        {% endif %}
+                      <label for="week1">Week 1</label>
+                    </p>
+                    <p>
+                      {% if request.GET.week == 'week2' %}
+                      <input name="week" type="radio" id="week2" value="week2" checked/>
+                        {% else %}
+                      <input name="week" type="radio" id="week2" value="week2" />
+                        {% endif %}
+                      <label for="week2">Week 2</label>
+                    </p>
+                    <p>
+                      {% if request.GET.week == 'week3' %}
+                      <input name="week" type="radio" id="week3" value="week3" checked/>
+                        {% else %}
+                      <input name="week" type="radio" id="week3" value="week3"/>
+                        {% endif %}
+                      <label for="week3">Week 3</label>
+                    </p>
+                </div>
             <div class="row">
                 <h4 style="color:green"><center>My Player Data</center></h4>    
             </div>
@@ -167,24 +199,6 @@
                 <div id="piechart" style="width: 900px; height: 500px;"></div>
             </div>
         {% endif %}
-
-        <!--<div class="divider"></div>
-        <div class="row">
-            <h4><center>Twitter Sentiment Analysis</center></h4>    
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="pos_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="neutral_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="neg_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>-->
-
                 {% endif %} <!-- This endif handles closes the else case condition - when no error-->
            
     </div>

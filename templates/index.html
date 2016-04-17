@@ -13,15 +13,15 @@
    <!-- Compiled and minified CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-          
-</head>
   <nav>
         <div class="nav-wrapper green">
-          <a href="/?week=week1" class="waves-effect waves-light green btn-large">Home</a>
-          <a href="/playerPage" class="waves-effect waves-light green btn-large">Players</a>
+          <a href="/?week=week1" id="HomeLink" class="waves-effect waves-light green btn-large">Home</a>
+          <a href="/playerPage?week=week1" id="PlayersLink" class="waves-effect waves-light green btn-large">Players</a>
         </div>
   </nav>
+          
+</head>
+  
 <body onLoad="clearForms()" onUnload="clearForms()">
 
   <div id="index-banner" class="parallax-container">

@@ -51,6 +51,7 @@ def playerPage(request):
 				print(request.GET['week'])
 				week = request.GET['week']
 			else:
+				print('Please set the week from home page')
 				week = 'week1'
 				print(week)
 

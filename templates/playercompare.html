@@ -1,4 +1,9 @@
 {% extends 'index.html' %} {% block body_block %}
+
+<script type="text/javascript">
+
+</script>
+
 <div class="container">
 
 
@@ -17,7 +22,7 @@
             <div class="row">
                 <p>
                     {% if request.GET.week == 'week1' %}
-                  <input name="week" type="radio" id="week1" value="week1" checked/>
+                  <input name="week" type="radio" id="week1" value="week1" checked />
                     {% else %}
                   <input name="week" type="radio" id="week1" value="week1"/>
                     {% endif %}
@@ -27,7 +32,7 @@
                   {% if request.GET.week == 'week2' %}
                   <input name="week" type="radio" id="week2" value="week2" checked/>
                     {% else %}
-                  <input name="week" type="radio" id="week2" value="week2"/>
+                  <input name="week" type="radio" id="week2" value="week2" />
                     {% endif %}
                   <label for="week2">Week 2</label>
                 </p>
