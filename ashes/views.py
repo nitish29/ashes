@@ -265,7 +265,7 @@ def runScript(request):
 			print(player_json)
 			with open(settings.PLAYER_JSON + player_json ) as f:
 				player_data = json.load(f)
-			with open(settings.PLAYER_MATCH_JSON + 'IND_vs_NZ_15Mar.json', 'r') as f:
+			with open(settings.MATCH_JSON + 'IND_vs_NZ_15Mar.json', 'r') as f:
 				match_data = json.load(f)
 				
 			index = 0
