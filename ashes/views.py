@@ -258,6 +258,9 @@ def runScript(request):
 		errors = []
 		#raise Exception('lalala')
 
+		if request.GET['file_name']:
+			match_file = request.GET['file_name']
+
 		player_dict = {'V Kohli': 'virat_kohli.json', 'MS Dhoni': 'ms_dhoni.json', 'JE Root': 'joe_root.json', 'CH Gayle': 'chris_gayle.json', 'Yuvraj Singh': 'yuvraj_singh.json', 'JJ Roy': 'jason_roy.json', 'S Dhawan': 'shikhar_dhawan.json', 'EJG Morgan': 'eoin_morgan.json', 'RA Jadeja': 'jadeja.json', 'SK Raina': 'suresh_raina.json', 'MN Samuels': 'marlon_samuels.json'}
 		player_match_dict = {'V Kohli': 'kohli_match.json', 'MS Dhoni': 'dhoni_match.json', 'JE Root': 'joe_root_match.json', 'CH Gayle': 'gayle_match.json', 'Yuvraj Singh': 'yuvraj_match.json', 'JJ Roy': 'jason_roy_match.json', 'S Dhawan': 'dhawan_match.json', 'RA Jadeja': 'jadeja_match.json', 'EJG Morgan': 'morgan_match.json', 'SK Raina': 'raina_match.json', 'MN Samuels': 'samuels_match.json'}
 		for player_name, player_json in player_dict.items():
@@ -265,7 +268,8 @@ def runScript(request):
 			print(player_json)
 			with open(settings.PLAYER_JSON + player_json ) as f:
 				player_data = json.load(f)
-			with open(settings.MATCH_JSON + 'IND_vs_NZ_15Mar.json', 'r') as f:
+			#with open(settings.MATCH_JSON + 'IND_vs_NZ_15Mar.json', 'r') as f:
+			with open(settings.MATCH_JSON + match_file, 'r') as f:
 				match_data = json.load(f)
 				
 			index = 0
