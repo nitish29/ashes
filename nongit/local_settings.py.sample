@@ -13,3 +13,5 @@ DATABASES = {
     }
 }
 
+SOLR_BASEURL_TWEET = 'http://localhost:8983/solr/cricketTweetsCore/select'
+SOLR_BASEURL_ARTICLES = 'http://localhost:7574/solr/articlesCore/select'

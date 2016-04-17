@@ -135,21 +135,21 @@ def makeSolrCall(search_query, queryType, week):
 		request_params = urllib.parse.urlencode(
 			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'defType': 'dismax','qf': 'search_target','fl':'targeted_sentiment', 'fq': date})
 		request_params = request_params.encode('utf-8')
-		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 	elif queryType == "articles":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
 			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 3, 'start': 0, 'defType': 'dismax','qf': 'title keywords summary content','fl':'title,article_url,date,summary', 'fq': date, 'bq': 'title^20 summary^10 date^5 ', 'sort': 'date desc'})
 		request_params = request_params.encode('utf-8')
-		req = urllib.request.urlopen('http://localhost:7574/solr/articlesCore/select',
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
 			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 100, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
 		request_params = request_params.encode('utf-8')
-		req = urllib.request.urlopen('http://localhost:8983/solr/cricketTweetsCore/select',
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 
 	content = req.read()
