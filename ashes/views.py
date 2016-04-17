@@ -147,7 +147,7 @@ def makeSolrCall(search_query, queryType, week):
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 100, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
+			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
@@ -258,14 +258,14 @@ def runScript(request):
 		errors = []
 		#raise Exception('lalala')
 
-		player_dict = { 'V Kohli' : 'virat_kohli.json', 'MS Dhoni' : 'ms_dhoni.json', 'Joe Root': 'joe_root.json', 'CH Gayle' : 'chris_gayle.json', 'Yuvraj Singh' : 'yuvraj_singh.json', 'Jason Roy': 'jason_roy.json', 'S Dhawan' : 'shikhar_dhawan.json'}
-		player_match_dict = {'V Kohli' : 'kohli_match.json', 'MS Dhoni' : 'dhoni_match.json', 'Joe Root': 'joe_root_match.json', 'CH Gayle' : 'gayle_match.json', 'Yuvraj Singh' : 'yuvraj_match.json', 'Jason Roy': 'jason_roy_match.json', 'S Dhawan' : 'dhawan_match.json'}
+		player_dict = {'V Kohli': 'virat_kohli.json', 'MS Dhoni': 'ms_dhoni.json', 'JE Root': 'joe_root.json', 'CH Gayle': 'chris_gayle.json', 'Yuvraj Singh': 'yuvraj_singh.json', 'JJ Roy': 'jason_roy.json', 'S Dhawan': 'shikhar_dhawan.json', 'EJG Morgan': 'eoin_morgan.json', 'RA Jadeja': 'jadeja.json', 'SK Raina': 'suresh_raina.json', 'MN Samuels': 'marlon_samuels.json'}
+		player_match_dict = {'V Kohli': 'kohli_match.json', 'MS Dhoni': 'dhoni_match.json', 'JE Root': 'joe_root_match.json', 'CH Gayle': 'gayle_match.json', 'Yuvraj Singh': 'yuvraj_match.json', 'JJ Roy': 'jason_roy_match.json', 'S Dhawan': 'dhawan_match.json', 'RA Jadeja': 'jadeja_match.json', 'EJG Morgan': 'morgan_match.json', 'SK Raina': 'raina_match.json', 'MN Samuels': 'samuels_match.json'}
 		for player_name, player_json in player_dict.items():
 			print(player_name)
 			print(player_json)
-			with open('/home/rachna/PlayerProcess/scriptjsonfiles/playerJson/' + player_json ) as f:
+			with open(settings.PLAYER_JSON + player_json ) as f:
 				player_data = json.load(f)
-			with open('/home/rachna/PlayerProcess/scriptjsonfiles/T20_Match_Data/IND_vs_BAN_23Mar.json', 'r') as f:
+			with open(settings.PLAYER_MATCH_JSON + 'IND_vs_NZ_15Mar.json', 'r') as f:
 				match_data = json.load(f)
 				
 			index = 0
@@ -446,7 +446,7 @@ def runScript(request):
 
 					
 				#player_match_json_data_variables
-				with open('/home/rachna/PlayerProcess/scriptjsonfiles/player_match_Json/' +  player_match_dict.get(player_name)) as f:
+				with open(settings.PLAYER_MATCH_JSON + player_match_dict.get(player_name)) as f:
 					player_match_data = json.load(f)            
 				
 				print("player name ::::::::::", str(player_name))
@@ -501,11 +501,11 @@ def runScript(request):
 				else:
 					player_match_data[0]['OpponentTeamName'] = match_data['summary']['team1']
 
-				with open('/home/rachna/PlayerProcess/scriptjsonfiles/player_match_Json/' + player_match_dict.get(player_name), 'w+') as temp_file:
+				with open(settings.PLAYER_MATCH_JSON + player_match_dict.get(player_name), 'w+') as temp_file:
 					temp_file.write(json.dumps(player_match_data))
 		  
 		
-				with open('/home/rachna/PlayerProcess/scriptjsonfiles/playerJson/' + player_json, 'w+') as temp_file:
+				with open(settings.PLAYER_JSON + player_json, 'w+') as temp_file:
 					temp_file.write(json.dumps(player_data))
 
 		response = HttpResponse(json.dumps({'status': 'success'}),  content_type='application/json')
