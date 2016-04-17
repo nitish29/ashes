@@ -156,6 +156,32 @@
             </div>
         {% endif %}
 
+        {% if newsTweets %}
+
+        <div class="divider"></div>
+        <div class="row">
+            <h4 style="color:#2196f3"><center>News Tweets</center></h4>    
+        </div>
+        <div class="row">
+                {% for single_news_tweet in newsTweets %}
+                <div class="col s12">
+                  <div class="card light-blue lighten-3">
+                    <div class="card-content white-text">
+                      <span class="card-title"><center><b>{{single_news_tweet.username}}</b></center></span>
+                        <div class="card-content">
+                            <p><b>{{single_news_tweet.date}}</b></p>
+                            <p><b>{{single_news_tweet.text}}</b></p>
+                        </div>
+                        <div class="card-action"> 
+                                 <a href="#" target="_blank" style="color:white"><b>Read Tweet on Twitter...</b></a>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
     {% if match_data %}
         <div class="divider"></div>
         <div class="row">

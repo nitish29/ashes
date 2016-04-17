@@ -59,6 +59,8 @@ def playerPage(request):
 				my_player = UserPlayers.objects.get(player_name=request.GET['myPlayerSelect'])
 				player_wise_articles = makeSolrCall(my_player.articles_search_target, 'articles', week)
 				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets', week)
+				player_news_channel_tweets = makeSolrCall(my_player.search_target, 'newsTweets', week)
+
 				print(player_wise_articles['response']['docs'])
 				
 				player_match_data = []
@@ -70,8 +72,8 @@ def playerPage(request):
 
 				player_sentiment_dict = getIndividualPlayerSentiment(my_player, week)
 
-				context = {'myPlayerList': userPlayers, 'articles' : player_wise_articles['response']['docs'], 'myPlayer' : my_player,
-				'playerTweets' : player_wise_tweets['response']['docs'], 'match_data' : player_match_data, 'player_sentiment_dict': player_sentiment_dict}
+				context = {'myPlayerList': userPlayers, 'articles': player_wise_articles['response']['docs'], 'myPlayer' : my_player,
+				'playerTweets': player_wise_tweets['response']['docs'], 'newsTweets': player_news_channel_tweets['response']['docs'], 'match_data': player_match_data, 'player_sentiment_dict': player_sentiment_dict}
 			else:
 				context = {'myPlayerList': userPlayers}
 
@@ -148,6 +150,13 @@ def makeSolrCall(search_query, queryType, week):
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
 			{'q': '*'+search_query+'*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
+									 request_params)
+	elif queryType == "newsTweets":
+		#pdb.set_trace()
+		request_params = urllib.parse.urlencode(
+			{'q': '*CricketNDTV ESPNcricinfo cricbuzz ICC*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'username', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
