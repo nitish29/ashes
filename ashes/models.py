@@ -13,7 +13,7 @@ class PlayerStats(models.Model):
     last_bat_impact = models.FloatField(default=0, null=True)
     team_name = models.CharField(max_length=100, null=True)
     player_match_name = models.CharField(max_length=100, null=True)
-
+    
 class UserPlayers(models.Model):
     player_name = models.ForeignKey(PlayerStats)
     search_target = models.CharField(max_length=100, null=True)

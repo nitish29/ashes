@@ -8,6 +8,7 @@ from .models import PlayerStats, UserPlayers, PlayerMatchData
 from operator import itemgetter
 from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
+import math
 
 
 
@@ -71,6 +72,9 @@ def playerPage(request):
 				print (player_match_data)
 
 				player_sentiment_dict = getIndividualPlayerSentiment(my_player, week)
+
+
+
 
 				context = {'myPlayerList': userPlayers, 'articles': player_wise_articles['response']['docs'], 'myPlayer' : my_player,
 				'playerTweets': player_wise_tweets['response']['docs'], 'newsTweets': player_news_channel_tweets['response']['docs'], 'match_data': player_match_data, 'player_sentiment_dict': player_sentiment_dict}
@@ -354,6 +358,7 @@ def runScript(request):
 		#        print str(player_data[0]['BattingImpactList'])
 				
 				batting_avg = float(totalRuns + runs_scored) / float(totalOuts + isOut)
+				batting_avg = math.ceil(batting_avg*100)/100
 				print(batting_avg)
 				
 				runsInMatches = (player_data[0]['RunsInMatches']).split(',')
@@ -372,6 +377,8 @@ def runScript(request):
 					print(CAA)
 				else:
 					CAA = batting_avg
+
+				CAA = math.ceil(CAA*100)/100
 					
 				matchRuns = 0
 				batsman_count=0
@@ -424,7 +431,7 @@ def runScript(request):
 				print("ChIS : ", str(ChIS))
 				
 				batting_impact_score = (RIS + SRIS + PrIS + ChIS )
-				
+				batting_impact_score = math.ceil(batting_impact_score*100)/100
 				print("final batting_impact_score : ", str(batting_impact_score))
 			
 				#insert new elements
