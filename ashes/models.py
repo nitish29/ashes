@@ -34,3 +34,5 @@ class PlayerMatchData(models.Model):
     opponent_team_name = models.CharField(max_length=100, null=True)
     strike_rate = models.CharField(max_length=10, null=True)
     match_status = models.CharField(max_length=500, null=True)
+    caa = models.FloatField(default=0, null=True)
+    last_bat_impact = models.FloatField(default=0, null=True)

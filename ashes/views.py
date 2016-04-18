@@ -91,22 +91,34 @@ def playerPage(request):
 def playerCompareAction(request):
 	try:
 		errors = []
-		if request.GET['myPlayerSelect']:
-			my_player = UserPlayers.objects.get(player_name=request.GET['myPlayerSelect'])
-		if request.GET['allPlayerSelect']:
-			other_player = PlayerStats.objects.get(player_name=request.GET['allPlayerSelect'])
 		if request.method == 'GET' and 'week' in request.GET:
 			print(request.GET['week'])
 			week = request.GET['week']
 
-		my_player_caa = my_player.player_name.caa
+		if week == 'week1':
+			date_range = ["2016-03-15", "2016-03-20"]
+		elif week == 'week2':
+			date_range = ["2016-03-21", "2016-03-27"]
+		else:
+			date_range = ["2016-03-28", "2016-04-03"]
+
+		if request.GET['myPlayerSelect']:
+			#pdb.set_trace()
+			my_selected_player = request.GET['myPlayerSelect']
+			my_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=my_selected_player).order_by('-match_date')[0]
+		
+		if request.GET['allPlayerSelect']:
+			other_selected_player = request.GET['allPlayerSelect']
+			other_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=other_selected_player).order_by('-match_date')[0]
+
+		my_player_caa = my_player.caa
 		other_player_caa = other_player.caa
 
 		if my_player_caa > other_player_caa:
-			message = 'We recommend ' + my_player.player_name.player_name + ' over ' + other_player.player_name
+			message = 'We recommend ' + my_player.player_name.player_name + ' over ' + other_player.player_name.player_name
 			print(message)
 		else:
-			message = 'We recommend ' + other_player.player_name + ' over ' + my_player.player_name.player_name
+			message = 'We recommend ' + other_player.player_name.player_name + ' over ' + my_player.player_name.player_name
 			print(message)
 
 		players = PlayerStats.objects.all()
@@ -488,7 +500,10 @@ def runScript(request):
 				player_match_data_table.match_date = match_date_formatted
 				player_match_data_table.tournament = match_data['summary']['tournament']
 				player_match_data_table.player_name = my_player
-				player_match_data_table.team_name = player_match_data[0]['TeamName']        
+				player_match_data_table.team_name = player_match_data[0]['TeamName']
+				player_match_data_table.caa = CAA
+				player_match_data_table.last_bat_impact = batting_impact_score
+
 				
 				player_team_name = player_match_data[0]['TeamName']
 

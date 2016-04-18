@@ -70,7 +70,7 @@
                     <select name="allPlayerSelect">
                         <option value="">Choose Second Player</option>
                         {%for i in allPlayerList %}
-                            {% if message and i.player_name == otherPlayer.player_name %}
+                            {% if message and i.player_name == otherPlayer.player_name.player_name %}
                                 <option value="{{i.player_name}}" selected>{{i.player_name}}</option>
                             {% else %}
                                 <option value="{{i.player_name}}">{{i.player_name}}</option>
@@ -103,11 +103,11 @@
                                 <tbody>
                                   <tr>
                                     <td>{{myPlayer.player_name.player_name}}</td>
-                                    <td>{{myPlayer.player_name.caa}}</td>
-                                    <td>{{myPlayer.player_name.last_bat_impact}}</td>
+                                    <td>{{myPlayer.caa}}</td>
+                                    <td>{{myPlayer.last_bat_impact}}</td>
                                   </tr>
                                   <tr>
-                                    <td>{{otherPlayer.player_name}}</td>
+                                    <td>{{otherPlayer.player_name.player_name}}</td>
                                     <td>{{otherPlayer.caa}}</td>
                                     <td>{{otherPlayer.last_bat_impact}}</td>
                                   </tr>
