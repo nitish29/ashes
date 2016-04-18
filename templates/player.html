@@ -99,7 +99,7 @@
         {% if articles %}
         <div class="divider"></div>
         <div class="row">
-            <h4 style="color:green"><center>Player Articles</center></h4>    
+            <h4 style="color:green"><center>News Articles</center></h4>    
         </div>
 
             <div class="row">
@@ -130,31 +130,6 @@
             </div>
         {% endif %}
 
-        {% if playerTweets %}
-
-        <div class="divider"></div>
-        <div class="row">
-            <h4 style="color:#2196f3"><center>Tweets</center></h4>    
-        </div>
-        <div class="row">
-                {% for single_tweet in playerTweets %}
-                <div class="col s12">
-                  <div class="card light-blue lighten-3">
-                    <div class="card-content white-text">
-                      <span class="card-title"><center><b>{{single_tweet.username}}</b></center></span>
-                        <div class="card-content">
-                            <p><b>{{single_tweet.date}}</b></p>
-                            <p><b>{{single_tweet.text}}</b></p>
-                        </div>
-                        <div class="card-action"> 
-                                 <a href="{{single_tweet.permalink}}" target="_blank" style="color:white"><b>Read Tweet on Twitter...</b></a>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% endif %}
 
         {% if newsTweets %}
 
@@ -181,6 +156,8 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+
 
     {% if match_data %}
         <div class="divider"></div>
@@ -223,6 +200,33 @@
             </div>
             <div class="row">
                 <div id="piechart" style="width: 900px; height: 500px;"></div>
+            </div>
+        {% endif %}
+
+        
+        {% if playerTweets %}
+
+        <div class="divider"></div>
+        <div class="row">
+            <h4 style="color:#2196f3"><center>User Tweets</center></h4>    
+        </div>
+        <div class="row">
+                {% for single_tweet in playerTweets %}
+                <div class="col s12">
+                  <div class="card light-blue lighten-3">
+                    <div class="card-content white-text">
+                      <span class="card-title"><center><b>{{single_tweet.username}}</b></center></span>
+                        <div class="card-content">
+                            <p><b>{{single_tweet.date}}</b></p>
+                            <p><b>{{single_tweet.text}}</b></p>
+                        </div>
+                        <div class="card-action"> 
+                                 <a href="{{single_tweet.permalink}}" target="_blank" style="color:white"><b>Read Tweet on Twitter...</b></a>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
             </div>
         {% endif %}
                 {% endif %} <!-- This endif handles closes the else case condition - when no error-->
