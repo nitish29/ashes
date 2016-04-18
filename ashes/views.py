@@ -91,6 +91,7 @@ def playerPage(request):
 def playerCompareAction(request):
 	try:
 		errors = []
+		#pdb.set_trace()
 		if request.method == 'GET' and 'week' in request.GET:
 			print(request.GET['week'])
 			week = request.GET['week']
@@ -102,14 +103,37 @@ def playerCompareAction(request):
 		else:
 			date_range = ["2016-03-28", "2016-04-03"]
 
+		players = PlayerStats.objects.all()
+		userPlayers = UserPlayers.objects.all()
+
+		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
+		neutral_chart_dict = sentiment_wise_player_dict['neutral']
+		positive_chart_dict = sentiment_wise_player_dict['positive']
+		negative_chart_dict = sentiment_wise_player_dict['negative']
+
 		if request.GET['myPlayerSelect']:
 			#pdb.set_trace()
 			my_selected_player = request.GET['myPlayerSelect']
-			my_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=my_selected_player).order_by('-match_date')[0]
+			my_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=my_selected_player).order_by('-match_date')
+			if my_player:
+				my_player = my_player[0]
+			else:
+				message = 'Oops! ' + my_selected_player + ' didnt play in this week. Please select another player.'
+				print(message)
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'neutral_player_list': neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
+				return render(request, "playercompare.html", context)
 		
 		if request.GET['allPlayerSelect']:
+
 			other_selected_player = request.GET['allPlayerSelect']
-			other_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=other_selected_player).order_by('-match_date')[0]
+			other_player = PlayerMatchData.objects.filter(match_date__range=[date_range[0], date_range[1]], player_name=other_selected_player).order_by('-match_date')
+			if other_player:
+				other_player = other_player[0]
+			else:
+				message = 'Oops! ' + other_selected_player + ' didnt play in this week. Please select another player.'
+				print(message)
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'neutral_player_list': neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
+				return render(request, "playercompare.html", context)
 
 		my_player_caa = my_player.caa
 		other_player_caa = other_player.caa
@@ -121,15 +145,7 @@ def playerCompareAction(request):
 			message = 'We recommend ' + other_player.player_name.player_name + ' over ' + my_player.player_name.player_name
 			print(message)
 
-		players = PlayerStats.objects.all()
-		userPlayers = UserPlayers.objects.all()
-
-		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
-		neutral_chart_dict = sentiment_wise_player_dict['neutral']
-		positive_chart_dict = sentiment_wise_player_dict['positive']
-		negative_chart_dict = sentiment_wise_player_dict['negative']
-		
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'neutral_player_list': neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
 
 	except:
 		errors.append('Error Completing request')
