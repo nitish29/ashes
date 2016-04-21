@@ -188,7 +188,7 @@ def makeSolrCall(search_query, queryType, week):
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*CricketNDTV ESPNcricinfo cricbuzz ICC*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'username', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': date})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV) ' + date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
