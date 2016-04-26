@@ -28,13 +28,33 @@ def home(request):
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
 		#pdb.set_trace()
+		caa_player_performace_dict = {}
+		bif_player_performace_dict = {}
+
+		for individual_player in userPlayers:
+			player_match_data = []
+			player_caa_string = ''
+			player_bif_string = ''
+			player_match_data = PlayerMatchData.objects.values('player_name', 'caa', 'last_bat_impact').filter(player_name=individual_player.player_name.player_name).order_by('match_date')
+			for individual_match_data in player_match_data:
+				player_caa_string = str(player_caa_string) + str(individual_match_data['caa']) + ', '
+				player_bif_string = str(player_bif_string) + str(individual_match_data['last_bat_impact']) + ', '
+			#print(player_caa_string)
+			#print(player_bif_string)
+			player_caa_string = player_caa_string[:-2]
+			player_bif_string = player_bif_string[:-2]
+			# caa_integer_list = [float(x) for x in player_caa_string.split(',')]
+			caa_player_performace_dict[individual_player.player_name.player_name] = player_caa_string
+			bif_player_performace_dict[individual_player.player_name.player_name] = player_bif_string
+		print(caa_player_performace_dict)
+
 
 		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
 		neutral_chart_dict = sentiment_wise_player_dict['neutral']
 		positive_chart_dict = sentiment_wise_player_dict['positive']
 		negative_chart_dict = sentiment_wise_player_dict['negative']
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict, 'caa_dict' : caa_player_performace_dict, 'bif_dict' : bif_player_performace_dict}
 
 	except:
 		
@@ -188,7 +208,7 @@ def makeSolrCall(search_query, queryType, week):
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc','fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV) ' + date})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV) ' + date})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)

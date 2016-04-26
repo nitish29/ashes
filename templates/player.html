@@ -78,7 +78,7 @@
                     <select name="myPlayerSelect">
                         <option value="">Select Player</option>
                         {%for i in myPlayerList %}
-                            {% if articles and i.player_name.player_name == myPlayer.player_name.player_name %}
+                            {% if i.player_name.player_name == myPlayer.player_name.player_name %}
                                  <option value="{{i.player_name.player_name}}" selected>{{i.player_name.player_name}}</option>
                             {% else %}
                                 <option value="{{i.player_name.player_name}}">{{i.player_name.player_name}}</option>
