@@ -28,6 +28,103 @@
         <div class="row">
                 <div id="biflinechart" style="width: 900px; height: 500px;"></div>
           </div>
+
+        <div class="divider"></div>
+        <div class="row">
+                <div class="col s6">
+                  <div class="card red lighten-1">
+                    <div class="card-content black-text">
+                      <span class="card-title"><center>Player Drop Suggestions</center></span>
+                            <table>
+                                <thead>
+                                  <tr>
+                                      <th data-field="player_name">Player Name</th>
+                                      <th data-field="CAA">CAA</th>
+                                      <th data-field="batting_impact">Batting Impact</th>
+                                  </tr>
+                                </thead>
+
+                                <tbody>
+                                  <tr>
+                                    <td>{{recommendations.drop_player1.player_name}}</td>
+                                    <td>{{recommendations.drop_player1.caa}}</td>
+                                    <td>{{recommendations.drop_player1.last_bat_impact}}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>{{recommendations.drop_player2.player_name}}</td>
+                                    <td>{{recommendations.drop_player2.caa}}</td>
+                                    <td>{{recommendations.drop_player2.last_bat_impact}}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>{{recommendations.drop_player3.player_name}}</td>
+                                    <td>{{recommendations.drop_player3.caa}}</td>
+                                    <td>{{recommendations.drop_player3.last_bat_impact}}</td>
+                                  </tr>
+                                </tbody>
+                            </table>
+                      <p>{{message}}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col s6">
+                  <div class="card light-green lighten-1">
+                    <div class="card-content white-text">
+                      <span class="card-title"><center>Player Pick Suggestions</center></span>
+                            <table>
+                                <thead>
+                                  <tr>
+                                      <th data-field="player_name">Player Name</th>
+                                      <th data-field="CAA">CAA</th>
+                                      <th data-field="batting_impact">Batting Impact</th>
+                                  </tr>
+                                </thead>
+
+                                <tbody>
+                                  <tr>
+                                    <td>{{recommendations.pick_player1.player_name}}</td>
+                                    <td>{{recommendations.pick_player1.caa}}</td>
+                                    <td>{{recommendations.pick_player1.last_bat_impact}}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>{{recommendations.pick_player2.player_name}}</td>
+                                    <td>{{recommendations.pick_player2.caa}}</td>
+                                    <td>{{recommendations.pick_player2.last_bat_impact}}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>{{recommendations.pick_player3.player_name}}</td>
+                                    <td>{{recommendations.pick_player3.caa}}</td>
+                                    <td>{{recommendations.pick_player3.last_bat_impact}}</td>
+                                  </tr>
+                                </tbody>
+                            </table>
+                      <p>{{message}}</p>
+                    </div>
+                  </div>
+                </div>
+
+            </div>
+  
+
+        <div class="divider"></div>
+        <div class="row">
+            <h4><center>Twitter Sentiment Analysis</center></h4>    
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <div id="pos_sentiment_div"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <div id="neutral_sentiment_div"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <div id="neg_sentiment_div" ></div>
+        </div>
+
+
+
         <form method="get" action="/playerCompareAction">
             <div class="row">
                 <p>
@@ -95,6 +192,7 @@
             </div>
                   
         </form>
+        
         {% if otherPlayer %}
             <div class="row">
                 <div class="col s6 offset-s3">
@@ -144,22 +242,7 @@
 
 
         {% endif %}
-        <div class="divider"></div>
-        <div class="row">
-            <h4><center>Twitter Sentiment Analysis</center></h4>    
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="pos_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="neutral_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-            <div id="neg_sentiment_div" style="width: 900px; height: 300px;"></div>
-        </div>
+      
 
                 {% endif %} <!-- This endif handles closes the else case condition - when no error-->
            
@@ -204,6 +287,74 @@ var chart2 = c3.generate({
 
     }
 });
+
+var chartPosSentiment = c3.generate({
+    bindto: '#pos_sentiment_div',
+    data: {
+        
+        x: 'x',
+//        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+        columns: [
+            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            {% for key, value in positive_weekly.items %}
+              ['{{key}}', {{value}}],
+            {% endfor %}
+        ]
+    },
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%Y-%m-%d'
+            }
+        }
+    }
+});
+var chartNegativeSentiment = c3.generate({
+    bindto: '#neg_sentiment_div',
+    data: {        
+        x: 'x',
+//        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+        columns: [
+            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            {% for key, value in negative_weekly.items %}
+              ['{{key}}', {{value}}],
+            {% endfor %}
+        ]
+    },
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%Y-%m-%d'
+            }
+        }
+    }
+});
+
+var chartNeutralSentiment = c3.generate({
+    bindto: '#neutral_sentiment_div',
+    data: {
+        
+        x: 'x',
+//        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+        columns: [
+            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            {% for key, value in neutral_weekly.items %}
+              ['{{key}}', {{value}}],
+            {% endfor %}
+        ]
+    },
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%Y-%m-%d'
+            }
+        }
+    }
+});
+
 </script>
 {% endblock %}
 

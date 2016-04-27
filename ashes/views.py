@@ -16,6 +16,11 @@ def home(request):
 	try:
 		errors = []
 		#pdb.set_trace()
+		recommendations = playerRecommendation()
+		#print(recommendations)
+		#print(recommendations['drop_player1'])
+		#print(recommendations['drop_player2'])
+		#print(recommendations['drop_player3'])
 
 		if request.method == 'GET' and 'week' in request.GET:
 			print(request.GET['week'])
@@ -46,15 +51,22 @@ def home(request):
 			# caa_integer_list = [float(x) for x in player_caa_string.split(',')]
 			caa_player_performace_dict[individual_player.player_name.player_name] = player_caa_string
 			bif_player_performace_dict[individual_player.player_name.player_name] = player_bif_string
-		print(caa_player_performace_dict)
+		#print(caa_player_performace_dict)
 
+		postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict = makeSolrCallForSentimentsInRange("sentiments_for_all")
+
+		# print(postive_weekly_sentiment_dict)
+		# print(negative_weekly_sentiment_dict)
+		# print(neutral_weekly_sentiment_dict)
 
 		sentiment_wise_player_dict = playerSentimentAnalysis(userPlayers, week)
 		neutral_chart_dict = sentiment_wise_player_dict['neutral']
 		positive_chart_dict = sentiment_wise_player_dict['positive']
 		negative_chart_dict = sentiment_wise_player_dict['negative']
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict, 'caa_dict' : caa_player_performace_dict, 'bif_dict' : bif_player_performace_dict}
+		date_range_str = '2016-03-18,' + '2016-03-22,' + '2016-03-26,' + '2016-03-30,' + '2016-04-03'
+
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'neutral_player_list' : neutral_chart_dict, 'positive_player_list': positive_chart_dict, 'negative_player_list': negative_chart_dict, 'caa_dict' : caa_player_performace_dict, 'bif_dict' : bif_player_performace_dict, 'positive_weekly' : postive_weekly_sentiment_dict, 'negative_weekly' : negative_weekly_sentiment_dict, 'neutral_weekly' : neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations}
 
 	except:
 		
@@ -62,6 +74,45 @@ def home(request):
 		context = {'errors': errors}
 
 	return render(request, "playercompare.html", context)
+
+def playerRecommendation():
+	userPlayers = UserPlayers.objects.all()
+	allPlayers = PlayerMatchData.objects.all()
+
+	player_name_list = []
+	my_player_list = []
+	other_player_list = []
+
+	for my_player in userPlayers:
+		player_name = my_player.player_name.player_name
+		 #player_dict = { my_player_data['player_name'] : my_player_data['caa']}
+		player_name_list.append(player_name)
+
+	for individual_player in allPlayers:
+		single_player_data = PlayerMatchData.objects.values('player_name', 'caa', 'last_bat_impact', 'match_date').filter(player_name=individual_player.player_name.player_name).order_by('-match_date')[0]
+
+		if single_player_data['player_name'] in player_name_list and single_player_data not in my_player_list:
+			my_player_list.append(single_player_data)
+		elif single_player_data not in other_player_list and single_player_data not in my_player_list:
+			other_player_list.append(single_player_data)
+
+	sorted_my_player_list_caa = ascSortPlayerList(my_player_list, 'caa')
+	print(sorted_my_player_list_caa)
+	sorted_my_player_list_bif = ascSortPlayerList(my_player_list, 'last_bat_impact')
+	sorted_other_player_list_caa = sortPlayerList(other_player_list, 'caa')
+	sorted_other_player_list_bif = sortPlayerList(other_player_list, 'last_bat_impact')
+
+	# pdb.set_trace()
+	drop_player1 = sorted_my_player_list_caa[0]
+	drop_player2 = sorted_my_player_list_caa[1]
+	drop_player3 = sorted_my_player_list_bif[0]
+
+	pick_player1 = sorted_other_player_list_caa[0]
+	pick_player2 = sorted_other_player_list_caa[1]
+	pick_player3 = sorted_other_player_list_bif[0]
+
+	return {'drop_player1': drop_player1, 'drop_player2': drop_player2, 'drop_player3': drop_player3, 'pick_player1': pick_player1, 
+	'pick_player2': pick_player2, 'pick_player3': pick_player3}
 
 def playerPage(request):
 		try:
@@ -174,6 +225,72 @@ def playerCompareAction(request):
 	return render(request, "playercompare.html", context)
 
 
+def makeSolrCallForSentimentsInRange(queryType):
+	
+	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
+	myPlayers = UserPlayers.objects.all()
+
+	date_range_wt20 = ['date:[2016-03-15T00:00:00Z TO 2016-03-18T00:00:00Z]','date:[2016-03-19T00:00:00Z TO 2016-03-22T00:00:00Z]','date:[2016-03-23T00:00:00Z TO 2016-03-26T00:00:00Z]','date:[2016-03-27T00:00:00Z TO 2016-03-30T00:00:00Z]','date:[2016-03-31T00:00:00Z TO 2016-04-03T00:00:00Z]']
+
+	postive_weekly_sentiment_dict = {}
+	negative_weekly_sentiment_dict = {}
+	neutral_weekly_sentiment_dict = {}
+
+	#pdb.set_trace()
+	
+	for individual_player in myPlayers:
+		playerName = individual_player.player_name.player_name
+		playerSearchTarget = individual_player.search_target
+
+		weekly_positive_string = ''
+		weekly_negative_string = ''
+		weekly_neutral_string = ''
+
+		if queryType == "sentiments_for_all":
+			
+			for individual_dates in date_range_wt20:
+				
+				request_params = urllib.parse.urlencode(
+					{'q': '*'+playerSearchTarget+'*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'defType': 'dismax','qf': 'search_target','fl':'targeted_sentiment', 'fq': individual_dates})
+				request_params = request_params.encode('utf-8')
+				req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
+											 request_params)
+
+				content = req.read()
+				decoded_json_content = json.loads(content.decode())
+
+				weekly_records_player = decoded_json_content['response']['numFound']
+				count_neutral = 0
+				count_positive = 0
+				count_negative = 0
+
+				for individual_sentiments in decoded_json_content['response']['docs']:
+					if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+						count_neutral = count_neutral + 1
+					elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+						count_positive = count_positive + 1
+					else:
+						count_negative = count_negative + 1
+				weekly_positive_percentage = ( float(count_positive) / float(weekly_records_player) ) * 100
+				weekly_negative_percentage = ( float(count_negative) / float(weekly_records_player) ) * 100
+				weekly_neutral_percentage = ( float(count_neutral) / float(weekly_records_player) ) * 100
+
+				weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
+				weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
+				weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+
+			weekly_positive_string = weekly_positive_string[:-2]
+			weekly_negative_string = weekly_negative_string[:-2]
+			weekly_neutral_string = weekly_neutral_string[:-2]
+
+			postive_weekly_sentiment_dict[playerName] = weekly_positive_string
+			negative_weekly_sentiment_dict[playerName] = weekly_negative_string
+			neutral_weekly_sentiment_dict[playerName] = weekly_neutral_string
+		
+	return postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict
+
+	
+
 def makeSolrCall(search_query, queryType, week):
 	
 	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
@@ -275,9 +392,15 @@ def getPlayerSentimentList(UserPlayers, week):
 			player_list.append(player_dict)
 
 	return player_list
+	
 
 def sortPlayerList(player_list_to_sort, sortingParameter):
 	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter), reverse=True) 
+	#print(sortedPlayerlist)
+	return sortedPlayerlist
+
+def ascSortPlayerList(player_list_to_sort, sortingParameter):
+	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter)) 
 	#print(sortedPlayerlist)
 	return sortedPlayerlist
 
