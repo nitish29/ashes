@@ -31,16 +31,21 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <label>Player 1</label>
                 </div>
                 <div class="col s6">
                     <input id="search" class="btn btn-medium green" type="submit" value="Go" />
                 </div>
             </div>
                   
-        
+        {% if player_sentiment_dict %}
+        <div class="row">
+                <h4 style="color:#2196f3"><center>Player's Sentiment Analysis Timeline</center></h4>    
+            </div>
+        <div class="row">
+                <div id="player_sentiment_chart" style="width: 900px; height: 500px;"></div>
+        </div>
+        {% endif %}
 
-        
 
         {% if articles %}
         <div class="divider"></div>
@@ -178,18 +183,12 @@
                             </table>
                     </div>
             </div>
-            <div class="row">
-                <h4 style="color:#2196f3"><center>Player's Sentiment Analysis Timeline</center></h4>    
-            </div>
-            <div class="row">
-                <div id="player_sentiment_chart" style="width: 900px; height: 500px;"></div>
-            </div>
+            
         {% endif %}
 
 
         {% if playerTweets %}
 
-        <div class="divider"></div>
         <div class="row">
             <h4 style="color:#2196f3"><center>User Tweets</center></h4>    
         </div>
@@ -283,6 +282,28 @@
           }
       }
   });
+
+setTimeout(function () {
+    playerSentimentChart.transform('bar', 'Positive %');
+}, 1000);
+
+setTimeout(function () {
+    playerSentimentChart.transform('bar', 'Negative %');
+}, 2000);
+
+setTimeout(function () {
+    playerSentimentChart.transform('bar', 'Neutral %');
+}, 3000);
+
+setTimeout(function () {
+    playerSentimentChart.transform('line');
+}, 4000);
+
+setTimeout(function () {
+    playerSentimentChart.transform('bar');
+}, 5000);
+
+
 </script>
 
 {% endblock %}

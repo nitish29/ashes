@@ -246,7 +246,8 @@ var chart = c3.generate({
             {% for key, value in caa_dict.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
-        ]
+        ], 
+        type: 'area-spline'
     }, 
     axis : {
       x: {
@@ -256,6 +257,24 @@ var chart = c3.generate({
 
     }
 });
+
+setTimeout(function () {
+    chart.transform('spline');
+}, 1000);
+
+setTimeout(function () {
+    chart.transform('area');
+}, 3000);
+
+setTimeout(function () {
+    chart.transform('line');
+}, 5000);
+
+setTimeout(function () {
+    chart.transform('bar');
+}, 7000);
+
+
 
 var chart2 = c3.generate({
     bindto: '#biflinechart',
@@ -264,7 +283,8 @@ var chart2 = c3.generate({
             {% for key, value in bif_dict.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
-        ]
+        ],
+        type: 'area-spline'
     }, 
     axis : {
       x: {
@@ -274,6 +294,22 @@ var chart2 = c3.generate({
 
     }
 });
+
+setTimeout(function () {
+    chart2.transform('spline');
+}, 10000);
+
+setTimeout(function () {
+    chart2.transform('area');
+}, 13000);
+
+setTimeout(function () {
+    chart2.transform('line');
+}, 16000);
+
+setTimeout(function () {
+    chart2.transform('bar');
+}, 20000);
 
 var chartPosSentiment = c3.generate({
     bindto: '#pos_sentiment_div',
@@ -297,6 +333,7 @@ var chartPosSentiment = c3.generate({
         }
     }
 });
+
 var chartNegativeSentiment = c3.generate({
     bindto: '#neg_sentiment_div',
     data: {        
