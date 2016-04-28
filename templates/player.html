@@ -1,34 +1,5 @@
 {% extends 'index.html' %} {% block body_block %}
 
-<script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-
-        var data = google.visualization.arrayToDataTable([
-          ['Sentiment', 'Percentage'],
-          ['Positive Sentiment', {{player_sentiment_dict.positive_percentage}}],
-          ['Negative Sentiment', {{player_sentiment_dict.negative_percentage}}],
-          ['Neutral Sentiment', {{player_sentiment_dict.neutral_percentage}}]
-        ]);
-
-        var options = {
-          title: '{{player_sentiment_dict.player_name}}'
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-
-        chart.draw(data, options);
-      }
-    </script>
-
-    <script type="text/javascript">
-
-         $('input[name=week]').val('week3');
-
-    </script>
-
-
 <div class="container">
 
 
@@ -44,39 +15,14 @@
 
         </div>  
         <form method="get" action="/playerPage"> 
-            <div class="row">
-                    <p>
-                        {% if request.GET.week == 'week1' %}
-                      <input name="week" type="radio" id="week1" value="week1" checked />
-                        {% else %}
-                      <input name="week" type="radio" id="week1" value="week1"/>
-                        {% endif %}
-                      <label for="week1">Week 1</label>
-                    </p>
-                    <p>
-                      {% if request.GET.week == 'week2' %}
-                      <input name="week" type="radio" id="week2" value="week2" checked/>
-                        {% else %}
-                      <input name="week" type="radio" id="week2" value="week2" />
-                        {% endif %}
-                      <label for="week2">Week 2</label>
-                    </p>
-                    <p>
-                      {% if request.GET.week == 'week3' %}
-                      <input name="week" type="radio" id="week3" value="week3" checked/>
-                        {% else %}
-                      <input name="week" type="radio" id="week3" value="week3"/>
-                        {% endif %}
-                      <label for="week3">Week 3</label>
-                    </p>
-                </div>
+            
             <div class="row">
                 <h4 style="color:green"><center>My Player Data</center></h4>    
             </div>
             <div class="row">
                 <div class="input-field col s6">
                     <select name="myPlayerSelect">
-                        <option value="">Select Player</option>
+                        <option value="">Select Batsman</option>
                         {%for i in myPlayerList %}
                             {% if i.player_name.player_name == myPlayer.player_name.player_name %}
                                  <option value="{{i.player_name.player_name}}" selected>{{i.player_name.player_name}}</option>
@@ -194,12 +140,11 @@
                             </table>
                     </div>
             </div>
-            <div class="divider"></div>
             <div class="row">
-                <h4 style="color:#2196f3"><center>Sentiment Analysis</center></h4>    
+                <h4 style="color:#2196f3"><center>Player's Sentiment Analysis Timeline</center></h4>    
             </div>
             <div class="row">
-                <div id="piechart" style="width: 900px; height: 500px;"></div>
+                <div id="player_sentiment_chart" style="width: 900px; height: 500px;"></div>
             </div>
         {% endif %}
 
@@ -233,4 +178,29 @@
            
     </div>
 </div>
+<script type="text/javascript">
+  var playerSentimentChart = c3.generate({
+      bindto: '#player_sentiment_chart',
+      data: {
+          
+          x: 'x',
+  //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+          columns: [
+              ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+              {% for key, value in player_sentiment_dict.items %}
+                ['{{key}}', {{value}}],
+              {% endfor %}
+          ]
+      },
+      axis: {
+          x: {
+              type: 'timeseries',
+              tick: {
+                  format: '%Y-%m-%d'
+              }
+          }
+      }
+  });
+</script>
+
 {% endblock %}

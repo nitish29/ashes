@@ -17,13 +17,14 @@
 
         </div>  
         <div class="row">
-                <h4><center>CAA vs. Match</center></h4>    
+                <h5><center>Consistency Adjusted Avg vs. Match Progress</center></h5>    
             </div>
         <div class="row">
                 <div id="caalinechart" style="width: 900px; height: 500px;"></div>
           </div>
+          <div class="divider"></div>
           <div class="row">
-                <h4><center>Batting Impact Factor vs. Match</center></h4>    
+                <h5><center>Batting Impact Factor vs. Match Progress</center></h5>    
             </div>
         <div class="row">
                 <div id="biflinechart" style="width: 900px; height: 500px;"></div>
@@ -31,8 +32,11 @@
 
         <div class="divider"></div>
         <div class="row">
+            <h5><center>Check out your Player Recommendations to Boost Your Fantasy Points</center></h5>    
+        </div>
+        <div class="row">
                 <div class="col s6">
-                  <div class="card red lighten-1">
+                  <div class="card red lighten-3">
                     <div class="card-content black-text">
                       <span class="card-title"><center>Player Drop Suggestions</center></span>
                             <table>
@@ -108,17 +112,25 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h4><center>Twitter Sentiment Analysis</center></h4>    
+            <h5><center>Twitter Sentiment Analysis</center></h5>    
         </div>
-        <div class="divider"></div>
+        <div class="row">
+            <h6><center>Positive Sentiment Timeline</center></h6>    
+        </div>
         <div class="row">
             <div id="pos_sentiment_div"></div>
         </div>
         <div class="divider"></div>
         <div class="row">
+            <h6><center>Neutral Sentiment Timeline</center></h6>    
+        </div>
+        <div class="row">
             <div id="neutral_sentiment_div"></div>
         </div>
         <div class="divider"></div>
+        <div class="row">
+            <h6><center>Negative Sentiment Timeline</center></h6>    
+        </div>
         <div class="row">
             <div id="neg_sentiment_div" ></div>
         </div>
@@ -126,42 +138,17 @@
 
 
         <form method="get" action="/playerCompareAction">
+            
             <div class="row">
-                <p>
-                    {% if request.GET.week == 'week1' %}
-                  <input name="week" type="radio" id="week1" value="week1" checked />
-                    {% else %}
-                  <input name="week" type="radio" id="week1" value="week1"/>
-                    {% endif %}
-                  <label for="week1">Week 1</label>
-                </p>
-                <p>
-                  {% if request.GET.week == 'week2' %}
-                  <input name="week" type="radio" id="week2" value="week2" checked/>
-                    {% else %}
-                  <input name="week" type="radio" id="week2" value="week2" />
-                    {% endif %}
-                  <label for="week2">Week 2</label>
-                </p>
-                <p>
-                  {% if request.GET.week == 'week3' %}
-                  <input name="week" type="radio" id="week3" value="week3" checked/>
-                    {% else %}
-                  <input name="week" type="radio" id="week3" value="week3"/>
-                    {% endif %}
-                  <label for="week3">Week 3</label>
-                </p>
-            </div> 
-            <div class="row">
-                <h4><center>Comparison Tool</center></h4>    
+                <h5><center>Need help comparing player performances for your next draft?</center></h5>    
             </div>
             <div class="row">
-                <center><h5>Please select players for comparison</h5></center>
+                <center><h6>Compare Your Current Team Players with the Rest</h5></center>
             </div>
             <div class="row">
                 <div class="input-field col s6">
                     <select name="myPlayerSelect">
-                        <option value="">Choose First Player</option>
+                        <option value="">Choose First Batsman</option>
                         {%for i in myPlayerList %}
                             {% if message and i.player_name.player_name == myPlayer.player_name.player_name %}
                                  <option value="{{i.player_name.player_name}}" selected>{{i.player_name.player_name}}</option>
@@ -175,7 +162,7 @@
 
                 <div class="input-field col s6">
                     <select name="allPlayerSelect">
-                        <option value="">Choose Second Player</option>
+                        <option value="">Choose Second Batsman</option>
                         {%for i in allPlayerList %}
                             {% if message and i.player_name == otherPlayer.player_name.player_name %}
                                 <option value="{{i.player_name}}" selected>{{i.player_name}}</option>
