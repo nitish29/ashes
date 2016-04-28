@@ -84,7 +84,7 @@
                 <div class="pagination">
                 <span class="step-links">
                   {% if articles.has_previous %}
-                  <a id="prev_article_link" href="?article_page={{ articles.previous_page_number }}&myPlayerSelect=MS+Dhoni"+>previous</a>
+                  <a id="prev_article_link" href="?article_page={{ articles.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}"+>previous</a>
                   {% endif %}
 
                 <span class="current">
@@ -92,7 +92,7 @@
                 </span>
 
                   {% if articles.has_next %}
-                  <a id="next_article_link" href="?article_page={{ articles.next_page_number }}&myPlayerSelect=MS+Dhoni">next</a>
+                  <a id="next_article_link" href="?article_page={{ articles.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}">next</a>
                   {% endif %}
                 </span>
                 </div>
@@ -130,7 +130,7 @@
                 <div class="pagination">
                 <span class="step-links">
                   {% if newsTweets.has_previous %}
-                  <a id="prev_news_tweet_link" href="?news_tweet_page={{ newsTweets.previous_page_number }}&myPlayerSelect=Virat+Kohli"+>previous</a>
+                  <a id="prev_news_tweet_link" href="?news_tweet_page={{ newsTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}"+>previous</a>
                   {% endif %}
 
                 <span class="current">
@@ -138,7 +138,7 @@
                 </span>
 
                   {% if newsTweets.has_next %}
-                  <a id="next_news_tweet_link" href="?news_tweet_page={{ newsTweets.next_page_number }}&myPlayerSelect=Virat+Kohli">next</a>
+                  <a id="next_news_tweet_link" href="?news_tweet_page={{ newsTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}">next</a>
                   {% endif %}
                 </span>
                 </div>
@@ -215,7 +215,7 @@
                 <div class="pagination">
                 <span class="step-links">
                   {% if playerTweets.has_previous %}
-                  <a id="prev_user_tweet_link" href="?user_tweet_page={{ playerTweets.previous_page_number }}&myPlayerSelect=MS+Dhoni"+>previous</a>
+                  <a id="prev_user_tweet_link" href="?user_tweet_page={{ playerTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}"+>previous</a>
                   {% endif %}
 
                 <span class="current">
@@ -223,7 +223,7 @@
                 </span>
 
                   {% if playerTweets.has_next %}
-                  <a id="next_user_tweet_link" href="?user_tweet_page={{ playerTweets.next_page_number }}&myPlayerSelect=MS+Dhoni">next</a>
+                  <a id="next_user_tweet_link" href="?user_tweet_page={{ playerTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}">next</a>
                   {% endif %}
                 </span>
                 </div>
