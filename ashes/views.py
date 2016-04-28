@@ -8,6 +8,7 @@ from .models import PlayerStats, UserPlayers, PlayerMatchData
 from operator import itemgetter
 from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import math
 
 
@@ -106,7 +107,13 @@ def playerPage(request):
 				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets')
 				player_news_channel_tweets = makeSolrCall(my_player.search_target, 'newsTweets')
 
+				#pdb.set_trace()
+
 				print(player_wise_articles['response']['docs'])
+				print ('Type///////////////////////')
+				print(type(player_wise_articles['response']['docs']))
+				print ('Articles Count Check ??????????')
+				print(len(player_wise_articles['response']['docs']))
 				
 				player_match_data = []
 
@@ -115,10 +122,45 @@ def playerPage(request):
 				print("printing all rows....")
 				print(player_match_data)
 
+				# timeline sentiment analysis for single player
 				player_sentiment_dict = makeSolrCallForSinglePlayerSentiment(my_player)
 
-				context = {'myPlayerList': userPlayers, 'articles': player_wise_articles['response']['docs'], 'myPlayer': my_player,
-				'playerTweets': player_wise_tweets['response']['docs'], 'newsTweets': player_news_channel_tweets['response']['docs'], 'match_data': player_match_data, 'player_sentiment_dict': player_sentiment_dict}
+				#pagination for articles
+
+				if(len(player_wise_articles['response']['docs']) != 0):	
+					article_list=player_wise_articles['response']['docs']
+					paginator=Paginator(article_list, 3)
+					article_page=request.GET.get('article_page')
+					if article_page:
+						print('request.GET.get(article_page) empty !!!')
+					else:
+						article_page=2
+					articles=paginator.page(article_page)
+
+				#pagination for user tweets
+				if(len(player_wise_tweets['response']['docs']) != 0):	
+					user_tweet_list = player_wise_tweets['response']['docs']
+					paginator = Paginator(user_tweet_list, 3)
+					user_tweet_page = request.GET.get('user_tweet_page')
+					if user_tweet_page:
+						print('request.GET.get(user_tweet_page) empty !!!')
+					else:
+						user_tweet_page = 2
+					user_tweets = paginator.page(user_tweet_page)
+
+				#pagination for news tweets
+				if(len(player_news_channel_tweets['response']['docs']) != 0):	
+					news_tweet_list = player_news_channel_tweets['response']['docs']
+					paginator = Paginator(news_tweet_list, 4)
+					news_tweet_page = request.GET.get('news_tweet_page')
+					if news_tweet_page:
+						print('request.GET.get(news_tweet_page) empty !!!')
+					else:
+						news_tweet_page = 2
+					news_tweets = paginator.page(news_tweet_page)
+
+				context = {'myPlayerList': userPlayers, 'articles': articles, 'myPlayer': my_player,
+				'playerTweets': user_tweets, 'newsTweets': news_tweets, 'match_data': player_match_data, 'player_sentiment_dict': player_sentiment_dict}
 			else:
 				context = {'myPlayerList': userPlayers}
 
@@ -206,6 +248,7 @@ def playerCompareAction(request):
 
 
 def makeSolrCallForSinglePlayerSentiment(individual_player):
+
 	date_range_wt20 = ['date:[2016-03-15T00:00:00Z TO 2016-03-18T00:00:00Z]', 'date:[2016-03-19T00:00:00Z TO 2016-03-22T00:00:00Z]', 'date:[2016-03-23T00:00:00Z TO 2016-03-26T00:00:00Z]', 'date:[2016-03-27T00:00:00Z TO 2016-03-30T00:00:00Z]', 'date:[2016-03-31T00:00:00Z TO 2016-04-03T00:00:00Z]']
 	
 	player_weekly_sentiment_dict = {}
@@ -335,21 +378,21 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "articles":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 3, 'start': 0, 'defType': 'dismax', 'qf': 'title keywords summary content', 'fl': 'title,article_url,date,summary', 'bq': 'title^20 summary^10 date^5 ', 'sort': 'date desc'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title keywords summary content', 'fl': 'title,article_url,date,summary', 'bq': 'title^20 summary^10 date^5 ', 'sort': 'date desc'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 5, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
@@ -440,9 +483,6 @@ def playerSentimentAnalysis(userPlayers):
 	player_neutral_rank1 = player_list_sorted_by_neutral[0]
 	player_neutral_rank2 = player_list_sorted_by_neutral[1]
 	player_neutral_rank3 = player_list_sorted_by_neutral[2]
-	# print(player_list_sorted_by_neutral)
-	# print(player_neutral_rank2['player_name'])
-	# print(player_neutral_rank3['player_name'])
 
 	player_positive_rank1 = player_list_sorted_by_positive[0]
 	player_positive_rank2 = player_list_sorted_by_positive[1]
@@ -465,7 +505,6 @@ def runScript(request):
 	try:
 		#pdb.set_trace()
 		errors = []
-		#raise Exception('lalala')
 
 		if request.GET['file_name']:
 			match_file = request.GET['file_name']
@@ -526,13 +565,7 @@ def runScript(request):
 				balls_faced = int(batsman['balls'])
 				runs_scored = int(batsman['runs'])        
 				strike_rate = float(batsman['strikeRate'])
-				status = batsman['status']
-				
-		#        print "balls_faced: "+str(balls_faced)
-		#        print "runs_scored: "+str(runs_scored)
-		#        print "strike_rate: "+str(strike_rate)
-		#        print "status: "+str(status)
-				
+				status = batsman['status']			
 				if status == "not out":
 					isOut = 0
 				else:
@@ -544,15 +577,7 @@ def runScript(request):
 				completedInnings = int(player_data[0]['Innings'])
 				totalRuns = int(player_data[0]['TotalRuns'])
 				totalOuts = int(player_data[0]['TotalOuts'])
-				battingImpactList = player_data[0]['BattingImpactList']
-				
-		#        print player_data
-		#        print str(player_data[0]['Innings'])
-		#        print str(player_data[0]['CAA'])
-		#        print str(player_data[0]['TotalRuns'])
-		#        print str(player_data[0]['TotalOuts'])
-		#        print str(player_data[0]['BattingImpactList'])
-				
+				battingImpactList = player_data[0]['BattingImpactList']			
 				batting_avg = float(totalRuns + runs_scored) / float(totalOuts + isOut)
 				batting_avg = math.ceil(batting_avg*100)/100
 				print(batting_avg)
@@ -593,17 +618,11 @@ def runScript(request):
 				
 				baseRuns = float(matchRuns)/float(batsman_count)
 				RIS = float(runs_scored/baseRuns)
-		#        print "batsman count : "+str(batsman_count)        
-		#        print "my runs : "+str(runs_scored)
-		#        print "matchruns : "+str(matchRuns)
-		#        print "baseruns : "+str(baseRuns)
 				print("RIS: ", str(RIS))
 				
 				SRIS_deno = float(matchRuns)/float(total_balls)
 				SRIS = (strike_rate/SRIS_deno) -1
 				
-		#        print "strike rate : "+str(strike_rate)
-		#        print "SRIS_deno :"+str(SRIS_deno)
 				print("SRIS :", str(SRIS))
 				
 				if (player_index == 0) or (player_index == 1):

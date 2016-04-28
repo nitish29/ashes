@@ -14,14 +14,14 @@
                 {% else %}
 
         </div>  
-        <form method="get" action="/playerPage"> 
+        <form method="get" action="/playerPage" id="myform"> 
             
             <div class="row">
                 <h4 style="color:green"><center>My Player Data</center></h4>    
             </div>
             <div class="row">
                 <div class="input-field col s6">
-                    <select name="myPlayerSelect">
+                    <select name="myPlayerSelect" id="myPlayerSelect">
                         <option value="">Select Batsman</option>
                         {%for i in myPlayerList %}
                             {% if i.player_name.player_name == myPlayer.player_name.player_name %}
@@ -38,7 +38,7 @@
                 </div>
             </div>
                   
-        </form>
+        
 
         
 
@@ -67,13 +67,32 @@
                                 </tbody>
                             </table>
                             <div class="card-action white-text">
-                                 <a href="{{single_article.article_url}}" target="_blank" style="color:black" >Read Full Article...</a>
+                                 <a href="{{single_article.article_url}}" target="_blank" style="color:black" >Click here to read full article...</a>
                             </div>
                     </div>
                   </div>
                 </div>
                 {% endfor %}
             </div>
+
+            <div class="row"> 
+                <div class="pagination">
+                <span class="step-links">
+                  {% if articles.has_previous %}
+                  <a id="prev_article_link" href="?article_page={{ articles.previous_page_number }}&myPlayerSelect=MS+Dhoni"+>previous</a>
+                  {% endif %}
+
+                <span class="current">
+                  Page {{ articles.number }} of {{ articles.paginator.num_pages }}.
+                </span>
+
+                  {% if articles.has_next %}
+                  <a id="next_article_link" href="?article_page={{ articles.next_page_number }}&myPlayerSelect=MS+Dhoni">next</a>
+                  {% endif %}
+                </span>
+                </div>
+            </div>
+
         {% endif %}
 
 
@@ -94,13 +113,32 @@
                             <p><b>{{single_news_tweet.text}}</b></p>
                         </div>
                         <div class="card-action"> 
-                                 <a href="{{single_news_tweet.permalink}}" target="_blank" style="color:white"><b>Read Tweet on Twitter...</b></a>
+                                 <a href="{{single_news_tweet.permalink}}" target="_blank" style="color:white"><b>Click here to read on Twitter...</b></a>
                         </div>
                     </div>
                   </div>
                 </div>
                 {% endfor %}
             </div>
+
+            <div class="row"> 
+                <div class="pagination">
+                <span class="step-links">
+                  {% if newsTweets.has_previous %}
+                  <a id="prev_news_tweet_link" href="?news_tweet_page={{ newsTweets.previous_page_number }}&myPlayerSelect=Virat+Kohli"+>previous</a>
+                  {% endif %}
+
+                <span class="current">
+                  Page {{ newsTweets.number }} of {{ newsTweets.paginator.num_pages }}.
+                </span>
+
+                  {% if newsTweets.has_next %}
+                  <a id="next_news_tweet_link" href="?news_tweet_page={{ newsTweets.next_page_number }}&myPlayerSelect=Virat+Kohli">next</a>
+                  {% endif %}
+                </span>
+                </div>
+            </div>
+
         {% endif %}
 
 
@@ -173,12 +211,56 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <div class="row"> 
+                <div class="pagination">
+                <span class="step-links">
+                  {% if playerTweets.has_previous %}
+                  <a id="prev_user_tweet_link" href="?user_tweet_page={{ playerTweets.previous_page_number }}&myPlayerSelect=MS+Dhoni"+>previous</a>
+                  {% endif %}
+
+                <span class="current">
+                  Page {{ playerTweets.number }} of {{ playerTweets.paginator.num_pages }}.
+                </span>
+
+                  {% if playerTweets.has_next %}
+                  <a id="next_user_tweet_link" href="?user_tweet_page={{ playerTweets.next_page_number }}&myPlayerSelect=MS+Dhoni">next</a>
+                  {% endif %}
+                </span>
+                </div>
+            </div>
+
         {% endif %}
                 {% endif %} <!-- This endif handles closes the else case condition - when no error-->
-           
+           </form>
     </div>
 </div>
 <script type="text/javascript">
+
+  function goArticleNext() {
+   
+    var my_player_val = $('#myPlayerSelect').val();
+     var href = $('#next_article_link').attr("href")
+     var nhref = "";
+     nhref = '/playerPage'+href+'&myPlayerSelect='+my_player_val;
+
+    $('#next_article_link').attr("href",nhref);
+    final = $('#next_article_link').attr("href");
+    alert('final link to go : '+final)
+  }
+
+  function goArticlePrev() {
+   
+    var my_player_val = $('#myPlayerSelect').val();
+     var href = $('#prev_article_link').attr("href");
+     var nhref = "";
+     nhref = '/playerPage'+href+'&myPlayerSelect='+my_player_val;
+
+    $('#prev_article_link').attr("href",nhref);
+    final = $('#prev_article_link').attr("href");
+    alert('final link to go : '+final)
+  }
+
   var playerSentimentChart = c3.generate({
       bindto: '#player_sentiment_chart',
       data: {
