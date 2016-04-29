@@ -19,3 +19,7 @@ PLAYER_JSON = '/home/ubuntu/player_json/'
 MATCH_JSON = '/home/ubuntu/T20_Match_Data/'
 PLAYER_MATCH_JSON = '/home/ubuntu/player_match_Json/'
 
+IPL_PLAYER_JSON = '/home/ubuntu/ipl_player_json/'
+IPL_MATCH_JSON = '/home/ubuntu/IPL_Match_Data/'
+IPL_PLAYER_MATCH_JSON = '/home/ubuntu/ipl_player_match_Json/'
+

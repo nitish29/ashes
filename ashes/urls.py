@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^playerCompareAction$', views.playerCompareAction, name='playerCompareAction'),
     url(r'^playerPage$', views.playerPage, name='playerPage'),
     url(r'^runScript$', views.runScript, name='runScript'),
+    url(r'^runScriptIPL$', views.runScriptIPL, name='runScriptIPL'),
 ]
