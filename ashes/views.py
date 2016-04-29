@@ -127,7 +127,7 @@ def playerPage(request):
 				player_sentiment_dict = makeSolrCallForSinglePlayerSentiment(my_player)
 
 				#pagination for articles
-
+				articles = []
 				if(len(player_wise_articles['response']['docs']) != 0):	
 					article_list=player_wise_articles['response']['docs']
 					paginator=Paginator(article_list, 3)
@@ -135,10 +135,11 @@ def playerPage(request):
 					if article_page:
 						print('request.GET.get(article_page) empty !!!')
 					else:
-						article_page=2
+						article_page=1
 					articles=paginator.page(article_page)
 
 				#pagination for user tweets
+				user_tweets = []
 				if(len(player_wise_tweets['response']['docs']) != 0):	
 					user_tweet_list = player_wise_tweets['response']['docs']
 					paginator = Paginator(user_tweet_list, 3)
@@ -146,10 +147,11 @@ def playerPage(request):
 					if user_tweet_page:
 						print('request.GET.get(user_tweet_page) empty !!!')
 					else:
-						user_tweet_page = 2
+						user_tweet_page = 1
 					user_tweets = paginator.page(user_tweet_page)
 
 				#pagination for news tweets
+				news_tweets = []
 				if(len(player_news_channel_tweets['response']['docs']) != 0):	
 					news_tweet_list = player_news_channel_tweets['response']['docs']
 					paginator = Paginator(news_tweet_list, 4)
@@ -157,7 +159,7 @@ def playerPage(request):
 					if news_tweet_page:
 						print('request.GET.get(news_tweet_page) empty !!!')
 					else:
-						news_tweet_page = 2
+						news_tweet_page = 1
 					news_tweets = paginator.page(news_tweet_page)
 
 				context = {'myPlayerList': userPlayers, 'articles': articles, 'myPlayer': my_player,
@@ -284,9 +286,9 @@ def makeSolrCallForSinglePlayerSentiment(individual_player):
 				count_positive = count_positive + 1
 			else:
 				count_negative = count_negative + 1
-		weekly_positive_percentage = round((float(count_positive) / float(weekly_records_player)) * 100, 2)
-		weekly_negative_percentage = round((float(count_negative) / float(weekly_records_player)) * 100, 2)
-		weekly_neutral_percentage = round((float(count_neutral) / float(weekly_records_player)) * 100, 2)
+		weekly_positive_percentage = round((float(count_positive) / float(10)) * 100, 2)
+		weekly_negative_percentage = round((float(count_negative) / float(10)) * 100, 2)
+		weekly_neutral_percentage = round((float(count_neutral) / float(10)) * 100, 2)
 
 		weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
 		weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
@@ -376,6 +378,8 @@ def makeSolrCall(search_query, queryType):
 	
 	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
 
+	#pdb.set_trace()
+
 	if queryType == "tweet":
 		request_params = urllib.parse.urlencode(
 			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 1000, 'start': 0, 'defType': 'dismax', 'qf': 'search_target', 'fl': 'targeted_sentiment'})
@@ -385,7 +389,7 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "articles":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title keywords summary content', 'fl': 'title,article_url,date,summary', 'bq': 'title^20 summary^10 date^5 ', 'sort': 'date desc'})
+			{'q': 'title ' + search_query + ' summary ' + search_query + ' content ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source', 'bq': 'title^50 summary^40 content^5', 'sort': 'date desc'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
