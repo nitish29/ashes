@@ -17,7 +17,7 @@
         <form method="get" action="/playerPage" id="myform"> 
             
             <div class="row">
-                <h4 style="color:green"><center>My Player Data</center></h4>    
+                <h5 style="color:black"><center>Find Your Personalized Player Feed Here!</center></h5>    
             </div>
             <div class="row">
                 <div class="input-field col s6">
@@ -39,7 +39,7 @@
                   
         {% if player_sentiment_dict %}
         <div class="row">
-                <h4 style="color:#2196f3"><center>Player's Sentiment Analysis Timeline</center></h4>    
+                <h5 style="color:black"><center>Player's Sentiment Analysis Timeline</center></h5>    
             </div>
         <div class="row">
                 <div id="player_sentiment_chart" style="width: 900px; height: 500px;"></div>
@@ -50,13 +50,13 @@
         {% if articles %}
         <div class="divider"></div>
         <div class="row">
-            <h4 style="color:green"><center>News Articles</center></h4>    
+            <h5 style="color:black"><center>News Articles</center></h5>    
         </div>
 
             <div class="row">
                 {% for single_article in articles %}
                 <div class="col s12">
-                  <div class="card green lighten-4">
+                  <div class="card green lighten-5">
                     <div class="card-content black-text">
                       <span class="card-title"><center><b>{{single_article.title}}</b></center></span>
                             <table>
@@ -106,7 +106,7 @@
                 <div class="pagination">
                 <span class="step-links">
                   {% if articles.has_previous %}
-                  <a id="prev_article_link" class="btn" href="?article_page={{ articles.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&news_tweet_page={{ newsTweets.number }}"+>previous</a>
+                  <a id="prev_article_link" class="btn btn-medium green" href="?article_page={{ articles.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&news_tweet_page={{ newsTweets.number }}"+>previous</a>
                   {% endif %}
 
                 <span class="current">
@@ -114,7 +114,7 @@
                 </span>
 
                   {% if articles.has_next %}
-                  <a id="next_article_link" class="btn" href="?article_page={{ articles.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&news_tweet_page={{ newsTweets.number }}">next</a>
+                  <a id="next_article_link" class="btn btn-medium green" href="?article_page={{ articles.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&news_tweet_page={{ newsTweets.number }}">next >></a>
                   {% endif %}
                 </span>
                 </div>
@@ -127,19 +127,25 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h4 style="color:#2196f3"><center>News Tweets</center></h4>    
+            <h5 style="color:black"><center>News Tweets</center></h5>    
         </div>
+       
         <div class="row">
                 {% for single_news_tweet in newsTweets %}
-                <div class="col s12">
-                  <div class="card light-blue lighten-3">
-                    <div class="card-content white-text">
-                      <span class="card-title"><center><b>{{single_news_tweet.username}}</b></center></span>
+                <div class="col s12 m6">
+                  <div class="card light-blue lighten-4">
+                    <div class="card-content blue-text">
+                      <span class="card-title"><center>@{{single_news_tweet.username}}</center></span>
                         <div class="card-content">
-                            <p><b>Date: {{single_news_tweet.date}}</b></p>
-                            <p><b>Tweet : {{single_news_tweet.text}}</b></p>
-                            <p><b>Retweet Count : {{single_news_tweet.retweets}}</b></p>
-                            <p><b>Fav Count : {{single_news_tweet.favorites}}</b></p>
+                            <p>Date: {{single_news_tweet.date}}</p>
+                            <p>Tweet : {{single_news_tweet.text}}</p>
+                            <span class="card-title activator grey-text text-darken-4">Tags<i class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class = "card-reveal">
+                           <span class="card-title grey-text text-darken-4">tags<i class="material-icons right">close</i></span>
+                            <p>Retweet Count : {{single_news_tweet.retweets}}</p>
+                            <p>Fav Count : {{single_news_tweet.favorites}}</p>
                             <p> Tags : {% for tags in single_news_tweet.formatted_tags|slice:"5" %}
                                 <div class="chip">
                                   <img src='{% static "images/tag.jpeg" %}'>
@@ -149,7 +155,7 @@
                             </p>
                         </div>
                         <div class="card-action"> 
-                                 <a href="{{single_news_tweet.permalink}}" target="_blank" style="color:white"><b>Click here to read on Twitter...</b></a>
+                                 <a href="{{single_news_tweet.permalink}}" target="_blank" style="color:black">Click here to read on Twitter...</a>
                         </div>
                     </div>
                   </div>
@@ -161,7 +167,7 @@
                 <div class="pagination">
                 <span class="step-links">
                   {% if newsTweets.has_previous %}
-                  <a class="btn" id="prev_news_tweet_link" href="?news_tweet_page={{ newsTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&article_page={{ articles.number }}"+>previous</a>
+                  <a class="btn light-blue" id="prev_news_tweet_link" href="?news_tweet_page={{ newsTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&article_page={{ articles.number }}"+>previous</a>
                   {% endif %}
 
                 <span class="current">
@@ -169,7 +175,7 @@
                 </span>
 
                   {% if newsTweets.has_next %}
-                  <a class="btn" id="next_news_tweet_link" href="?news_tweet_page={{ newsTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&article_page={{ articles.number }}">next</a>
+                  <a class="btn light-blue" id="next_news_tweet_link" href="?news_tweet_page={{ newsTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&user_tweet_page={{ playerTweets.number }}&article_page={{ articles.number }}">next >></a>
                   {% endif %}
                 </span>
                 </div>
@@ -182,7 +188,7 @@
     {% if match_data %}
         <div class="divider"></div>
         <div class="row">
-            <h4 style="color:green"><center>Recent Match Stats</center></h4>    
+            <h5 style="color:black"><center>Recent Match Stats</center></h5>    
         </div>
 
                 <div class="row">
@@ -221,20 +227,20 @@
         {% if playerTweets %}
 
         <div class="row">
-            <h4 style="color:#2196f3"><center>User Tweets</center></h4>    
+            <h5 style="color:black"><center>User Tweets</center></h5>    
         </div>
         <div class="row">
                 {% for single_tweet in playerTweets %}
-                <div class="col s12">
-                  <div class="card light-blue lighten-3">
-                    <div class="card-content white-text">
-                      <span class="card-title"><center><b>{{single_tweet.username}}</b></center></span>
+                <div class="col s12 m6">
+                  <div class="card light-blue lighten-4">
+                    <div class="card-content blue-text">
+                      <span class="card-title"><center>@{{single_tweet.username}}</center></span>
                         
                         <div class="card-content">
-                            <p><b>Date: {{single_tweet.date}}</b></p>
-                            <p><b>Tweet : {{single_tweet.text}}</b></p>
-                            <p><b>Retweet Count : {{single_tweet.retweets}}</b></p>
-                            <p><b>Fav Count : {{single_tweet.favorites}}</b></p>
+                            <p>Date: {{single_tweet.date}}</p>
+                            <p>Tweet : {{single_tweet.text}}</p>
+                            <p>Retweet Count : {{single_tweet.retweets}}</p>
+                            <p>Fav Count : {{single_tweet.favorites}}</p>
                             <p> Tags : {% for tags in single_tweet.formatted_tags|slice:"5" %}
                                 <div class="chip">
                                   <img src='{% static "images/tag.jpeg" %}'>
@@ -244,7 +250,7 @@
                             </p>
                         </div>
                         <div class="card-action"> 
-                                 <a href="{{single_tweet.permalink}}" target="_blank" style="color:white"><b>Read Tweet on Twitter...</b></a>
+                                 <a href="{{single_tweet.permalink}}" target="_blank" style="color:white">Read Tweet on Twitter...</a>
                         </div>
                     </div>
                   </div>
@@ -256,7 +262,7 @@
                 <div class="pagination">
                
                   {% if playerTweets.has_previous %}
-                  <a class="btn" id="prev_user_tweet_link" href="?user_tweet_page={{ playerTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&news_tweet_page={{ newsTweets.number }}&article_page={{ articles.number }}"+>previous</a>
+                  <a class="btn light-blue" id="prev_user_tweet_link" href="?user_tweet_page={{ playerTweets.previous_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&news_tweet_page={{ newsTweets.number }}&article_page={{ articles.number }}"+>previous</a>
                   {% endif %}
 
 
@@ -265,7 +271,7 @@
                 </span>
 
                   {% if playerTweets.has_next %}
-                  <a id="next_user_tweet_link" href="?user_tweet_page={{ playerTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&news_tweet_page={{ newsTweets.number }}&article_page={{ articles.number }}" class="btn btn-medium green">next</a>
+                  <a id="next_user_tweet_link" href="?user_tweet_page={{ playerTweets.next_page_number }}&myPlayerSelect={{ myPlayer.player_name.player_name|urlencode }}&news_tweet_page={{ newsTweets.number }}&article_page={{ articles.number }}" class="btn light-blue">next >></a>
                   {% endif %}
                 
                 </div>
@@ -309,7 +315,7 @@
           x: 'x',
   //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
           columns: [
-              ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+              ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
               {% for key, value in player_sentiment_dict.items %}
                 ['{{key}}', {{value}}],
               {% endfor %}

@@ -15,16 +15,18 @@
 
                 {% else %}
 
-        </div>  
+        </div> 
+
         <div class="row">
-                <h5><center>Consistency Adjusted Avg vs. Match Progress</center></h5>    
+                <h5><center>Wanna know how your team played in the Fantasy League?</center></h5> 
+                <h6><center>Consistency Adjusted Avg vs. Match Progress</center></h6>    
             </div>
         <div class="row">
                 <div id="caalinechart" style="width: 900px; height: 500px;"></div>
           </div>
           <div class="divider"></div>
           <div class="row">
-                <h5><center>Batting Impact Factor vs. Match Progress</center></h5>    
+                <h6><center>Batting Impact Factor vs. Match Progress</center></h6>    
             </div>
         <div class="row">
                 <div id="biflinechart" style="width: 900px; height: 500px;"></div>
@@ -32,7 +34,10 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h5><center>Check out your Player Recommendations to Boost Your Fantasy Points</center></h5>    
+            <h5><center>Wanna Boost Your Fantasy Points?</center></h5>    
+        </div>
+        <div class="row">
+            <h6><center>Check out your Player Recommendations Based on Performance</center></h6>    
         </div>
         <div class="row">
                 <div class="col s6">
@@ -109,8 +114,9 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h5><center>Check out your Player Recommendations Based on Sentiments</center></h5>    
+            <h6><center>Check out your Player Recommendations Based on Twitter Sentiments</center></h6>    
         </div>
+
 
         <div class="row">
                 <div class="col s6">
@@ -198,10 +204,11 @@
             <div id="neg_sentiment_div" ></div>
         </div>
 
-
+        <br/>
         <div class="divider"></div>
+        <br/>
         <div class="row">
-            <h5><center>Check out your Player Recommendations Based on Upcoming Match Count </center></h5>    
+            <h5><center>Check out your Player Recommendations Based on Fixture </center></h5>    
         </div>
 
         <div class="row">
@@ -465,7 +472,7 @@ var chartPosSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
             {% for key, value in positive_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
@@ -487,7 +494,7 @@ var chartNegativeSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
             {% for key, value in negative_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
@@ -510,7 +517,7 @@ var chartNeutralSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-03-18','2016-03-22','2016-03-26','2016-03-30','2016-04-03'],
+            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
             {% for key, value in neutral_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}

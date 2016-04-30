@@ -170,7 +170,7 @@ def playerPage(request):
 				user_tweets = []
 				if(len(player_wise_tweets['response']['docs']) != 0):	
 					user_tweet_list = player_wise_tweets['response']['docs']
-					paginator = Paginator(user_tweet_list, 3)
+					paginator = Paginator(user_tweet_list, 4)
 					user_tweet_page = request.GET.get('user_tweet_page')
 					if user_tweet_page:
 						print('request.GET.get(user_tweet_page) empty !!!')
