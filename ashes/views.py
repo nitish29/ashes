@@ -15,6 +15,8 @@ import math
 def home(request):
 	try:
 		errors = []
+
+		getRecommendationBasedOnUpcomingMatches()
 		
 		recommendations = playerRecommendation()
 		#print(recommendations)
@@ -47,7 +49,14 @@ def home(request):
 		#date_range_str = '2016-03-18,' + '2016-03-22,' + '2016-03-26,' + '2016-03-30,' + '2016-04-03'
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations}
+		top_3_negative_players, top_3_pos_replacement = sentimentWiseRecommendation()
+
+		print('****************************')
+		print(top_3_pos_replacement)
+
+		player_to_bench, player1_to_pick, player2_to_pick, week_fixtures = getRecommendationBasedOnUpcomingMatches()
+
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures' : week_fixtures}
 
 	except:
 		
@@ -108,13 +117,32 @@ def playerPage(request):
 				player_wise_tweets = makeSolrCall(my_player.search_target, 'playerTweets')
 				player_news_channel_tweets = makeSolrCall(my_player.search_target, 'newsTweets')
 
-				#pdb.set_trace()
 
 				print(player_wise_articles['response']['docs'])
 				print ('Type///////////////////////')
 				print(type(player_wise_articles['response']['docs']))
 				print ('Articles Count Check ??????????')
 				print(len(player_wise_articles['response']['docs']))
+
+				for single_article in player_wise_articles['response']['docs']:
+					all_tags = single_article['keywords'][0]
+					split_tags = [x.strip() for x in all_tags.split(',')]
+					single_article['formatted_tags'] = split_tags
+
+				for single_tweet in player_wise_tweets['response']['docs']:
+					all_tags = single_tweet['keywords'][0]
+					split_tags = [x.strip() for x in all_tags.split(',')]
+					single_tweet['formatted_tags'] = split_tags
+
+				for single_tweet_news in player_news_channel_tweets['response']['docs']:
+					all_tags = single_tweet_news['keywords'][0]
+					split_tags = [x.strip() for x in all_tags.split(',')]
+					single_tweet_news['formatted_tags'] = split_tags
+
+				# pdb.set_trace()
+				print ('Forrmmaatttteeeddd///////////////////////')
+				print(player_wise_articles['response']['docs'])
+
 				
 				player_match_data = []
 
@@ -173,6 +201,127 @@ def playerPage(request):
 
 		return render(request, "player.html", context)
 
+def getFixtures(week):
+	
+	if week == 'week1':
+		match_count_dict = {'Royal Challengers Bangalore' : 1, 'Mumbai Indians' : 3 , 'Kolkata Knight Riders' : 2, 'Kings XI Punjab' : 2, 'Gujarat Lions' : 2, 'Rising Pune Supergiants' : 2, 'Sunrisers Hyderabad' : 2, 'Delhi Daredevils' : 2 }
+		week_fixtures = {'Delhi Daredevils vs Mumbai Indians' : '2016-04-23', 'Sunrisers Hyderabad vs Kings XI Punjab' : '2016-04-23', 'Gujarat Lions vs Royal Challengers Bangalore' : '2016-04-24', 'Rising Pune Supergiants vs Kolkata Knight Riders': '2016-04-24', 'Kings XI Punjab vs Mumbai Indians' : '2016-04-25', 'Sunrisers Hyderabad vs Rising Pune Supergiants' : '2016-04-26', 'Delhi Daredevils vs Gujarat Lions': '2016-04-27', 'Mumbai Indians vs Kolkata Knight Riders' : '2016-04-28'}
+	else:
+		match_count_dict = {'Royal Challengers Bangalore' : 2, 'Mumbai Indians' : 1 , 'Kolkata Knight Riders' : 3, 'Kings XI Punjab' : 2, 'Gujarat Lions' : 3, 'Rising Pune Supergiants' : 2, 'Sunrisers Hyderabad' : 1, 'Delhi Daredevils' : 3 }
+		week_fixtures = {'Rising Pune Supergiants vs Gujarat Lions' : '2016-04-29', 'Delhi Daredevils vs Kolkata Knight Riders' : '2016-04-30', 'Sunrisers Hyderabad vs Royal Challengers Bangalore' : '2016-04-30', 'Gujarat Lions vs Kings XI Punjab' : '2016-05-01', 'Rising Pune Supergiants vs Mumbai Indians':'2016-05-01', 'Royal Challengers Bangalore vs Kolkata Knight Riders' : '2016-05-02', 'Gujarat Lions vs Delhi Daredevils':'2016-05-03', 'Kolkata Knight Riders vs Kings XI Punjab': '2016-05-04', 'Delhi Daredevils vs Rising Pune Supergiants' : '2016-05-05'}
+	return match_count_dict, week_fixtures
+
+def getRecommendationBasedOnUpcomingMatches():
+	#pdb.set_trace()
+	userPlayers = PlayerStats.objects.values('player_name', 'team_name').filter(other_player=False)
+	otherPlayers = PlayerStats.objects.values('player_name', 'team_name', 'caa', 'last_bat_impact').filter(other_player=True)
+	match_count_dict, week_fixtures = getFixtures('week1')
+	my_player_match_dict = {}
+	other_player_match_dict = {}
+
+	for my_player in userPlayers:
+		player_name = my_player['player_name']
+		player_team_name = my_player['team_name']
+		player_match_count = match_count_dict[player_team_name]
+		my_player_match_dict[player_name] = [player_team_name, player_match_count]
+
+	sorted_my_player_match_dict = sorted(my_player_match_dict.items(), key=lambda e: e[1][1])
+	print('sorted_my_player_match_dict********')
+	print(sorted_my_player_match_dict)
+
+	player_to_bench = sorted_my_player_match_dict[0]
+	player_to_bench_name =player_to_bench[0]
+	player_team_name = player_to_bench[1][0]
+	player_matches = player_to_bench[1][1]
+
+	for other_player in otherPlayers:
+		player_name = other_player['player_name']
+		player_team_name = other_player['team_name']
+		player_match_count = match_count_dict[player_team_name]
+		player_caa = other_player['caa']
+		player_bif = other_player['last_bat_impact']
+		other_player_match_dict[player_name] = [player_team_name, player_match_count, player_caa, player_bif]
+
+	sorted_other_player_match_dict = sorted(other_player_match_dict.items(), key=lambda e: e[1][1], reverse=True)
+	print('sorted_other_player_match_dict>>>>>>>>>>>')
+	print(sorted_other_player_match_dict)
+
+	player1_to_pick = sorted_other_player_match_dict[0]
+	player_1_name = player1_to_pick[0]
+	player1_team_name = player1_to_pick[1][0]
+	player1_matches = player1_to_pick[1][1]
+	player1_caa = player1_to_pick[1][2]
+	player1_bif = player1_to_pick[1][3]
+
+	player2_to_pick = sorted_other_player_match_dict[1]
+	player_2_name = player2_to_pick[0]
+	player2_team_name = player2_to_pick[1][0]
+	player2_matches = player2_to_pick[1][1]
+	player2_caa = player2_to_pick[1][2]
+	player2_bif = player2_to_pick[1][3]
+
+	return player_to_bench, player1_to_pick, player2_to_pick, week_fixtures
+
+
+def sentimentWiseRecommendation():
+	
+	try:
+		#pdb.set_trace()
+		errors = []
+		my_players_top_neg_dict = myPlayerNegativeSentimentAnalysis()
+		
+		other_players_pos_list = otherPlayerPositiveSentimentAnalysis()
+
+		other_recommendation_dict = {}
+
+		least_negative_player_neg_percentage = my_players_top_neg_dict['player_3_negative_percentage']
+		least_negative_player_pos_percentage = my_players_top_neg_dict['player_3_pos_percentage']
+
+		count = 0
+		for individual_player in other_players_pos_list:
+
+			other_pos_sentiment_percentage = individual_player['positive_percentage'] 
+			other_neg_sentiment_percentage = individual_player['negative_percentage']
+
+			if other_pos_sentiment_percentage >= least_negative_player_pos_percentage and other_neg_sentiment_percentage <= least_negative_player_neg_percentage and count < 3:
+				other_recommendation_dict[individual_player['player_name']] = other_pos_sentiment_percentage
+				count = count + 1
+
+		return my_players_top_neg_dict, other_recommendation_dict
+
+	except:
+		errors.append('Error in Sentiment wise Recommendation')
+		context = {'errors': errors}
+		return context
+
+def myPlayerNegativeSentimentAnalysis():
+	userPlayers = UserPlayers.objects.all()
+	get_player_list = getPlayerSentimentList(userPlayers)
+
+	player_list_sorted_by_negative = sortPlayerList(get_player_list, 'negative_percentage')
+
+	player_negative_rank1 = player_list_sorted_by_negative[0]
+	player_negative_rank2 = player_list_sorted_by_negative[1]
+	player_negative_rank3 = player_list_sorted_by_negative[2]
+
+	negative_chart_dict = {'player_1_name': player_negative_rank1['player_name'], 'player_1_percentage': player_negative_rank1['negative_percentage'], 'player_2_name': player_negative_rank2['player_name'], 'player_2_percentage': player_negative_rank2['negative_percentage'], 'player_3_name': player_negative_rank3['player_name'], 'player_3_negative_percentage': player_negative_rank3['negative_percentage'],  'player_3_pos_percentage': player_negative_rank3['positive_percentage']}
+
+	return negative_chart_dict
+
+def otherPlayerPositiveSentimentAnalysis():
+	#pdb.set_trace()
+	other_player_objects = PlayerStats.objects.values('player_name', 'tag', 'other_player').filter(other_player=True)
+	get_player_list = getOtherPlayerSentimentList(other_player_objects)
+
+	player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')
+
+	# player_positive_rank1 = player_list_sorted_by_positive[0]
+	# player_positive_rank2 = player_list_sorted_by_positive[1]
+	# player_positive_rank3 = player_list_sorted_by_positive[2]
+
+	# positive_chart_dict = {'player_1_name': player_positive_rank1['player_name'], 'player_1_percentage': player_positive_rank1['positive_percentage'], 'player_2_name': player_positive_rank2['player_name'], 'player_2_percentage': player_positive_rank2['positive_percentage'], 'player_3_name': player_positive_rank3['player_name'], 'player_3_percentage': player_positive_rank3['positive_percentage']}
+
+	return player_list_sorted_by_positive
 
 def playerCompareAction(request):
 	try:
@@ -208,6 +357,10 @@ def playerCompareAction(request):
 		#date_range_str = '2016-03-18,' + '2016-03-22,' + '2016-03-26,' + '2016-03-30,' + '2016-04-03'
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
 
+		top_3_negative_players, top_3_pos_replacement = sentimentWiseRecommendation()
+		player_to_bench, player1_to_pick, player2_to_pick, week_fixtures = getRecommendationBasedOnUpcomingMatches()
+
+
 		if request.GET['myPlayerSelect']:
 			#pdb.set_trace()
 			my_selected_player = request.GET['myPlayerSelect']
@@ -217,7 +370,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + my_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations}
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement,'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures': week_fixtures}
 				return render(request, "playercompare.html", context)
 		
 		if request.GET['allPlayerSelect']:
@@ -229,7 +382,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + other_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations}
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures }
 				return render(request, "playercompare.html", context)
 
 		my_player_caa = my_player.caa
@@ -242,7 +395,7 @@ def playerCompareAction(request):
 			message = 'We recommend ' + other_player.player_name.player_name + ' over ' + my_player.player_name.player_name
 			print(message)
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures }
 
 	except:
 		errors.append('Error Completing request')
@@ -275,24 +428,30 @@ def makeSolrCallForSinglePlayerSentiment(individual_player):
 		decoded_json_content = json.loads(content.decode())
 
 		weekly_records_player = decoded_json_content['response']['numFound']
-		count_neutral = 0
-		count_positive = 0
-		count_negative = 0
 
-		for individual_sentiments in decoded_json_content['response']['docs']:
-			if (individual_sentiments['targeted_sentiment'] == 'neutral'):
-				count_neutral = count_neutral + 1
-			elif (individual_sentiments['targeted_sentiment'] == 'positive'):
-				count_positive = count_positive + 1
-			else:
-				count_negative = count_negative + 1
-		weekly_positive_percentage = round((float(count_positive) / float(10)) * 100, 2)
-		weekly_negative_percentage = round((float(count_negative) / float(10)) * 100, 2)
-		weekly_neutral_percentage = round((float(count_neutral) / float(10)) * 100, 2)
+		if weekly_records_player != 0:
+			count_neutral = 0
+			count_positive = 0
+			count_negative = 0
 
-		weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
-		weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
-		weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+			for individual_sentiments in decoded_json_content['response']['docs']:
+				if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+					count_neutral = count_neutral + 1
+				elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+					count_positive = count_positive + 1
+				else:
+					count_negative = count_negative + 1
+			weekly_positive_percentage = round((float(count_positive) / float(weekly_records_player)) * 100, 2)
+			weekly_negative_percentage = round((float(count_negative) / float(weekly_records_player)) * 100, 2)
+			weekly_neutral_percentage = round((float(count_neutral) / float(weekly_records_player)) * 100, 2)
+
+			weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
+			weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
+			weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+		else:
+			weekly_positive_string = str(weekly_positive_string) + str(0) + ', '
+			weekly_negative_string = str(weekly_negative_string) + str(0) + ', '
+			weekly_neutral_string = str(weekly_neutral_string) + str(0) + ', '
 
 	weekly_positive_string = weekly_positive_string[:-2]
 	weekly_negative_string = weekly_negative_string[:-2]
@@ -344,24 +503,30 @@ def makeSolrCallForSentimentsInRange(queryType):
 
 				weekly_records_player = decoded_json_content['response']['numFound']
 				
-				count_neutral = 0
-				count_positive = 0
-				count_negative = 0
+				if weekly_records_player != 0:
 
-				for individual_sentiments in decoded_json_content['response']['docs']:
-					if (individual_sentiments['targeted_sentiment'] == 'neutral'):
-						count_neutral = count_neutral + 1
-					elif (individual_sentiments['targeted_sentiment'] == 'positive'):
-						count_positive = count_positive + 1
-					else:
-						count_negative = count_negative + 1
-				weekly_positive_percentage = round((float(count_positive) / float(10)) * 100, 2)
-				weekly_negative_percentage = round((float(count_negative) / float(10)) * 100, 2)
-				weekly_neutral_percentage = round((float(count_neutral) / float(10)) * 100, 2)
+					count_neutral = 0
+					count_positive = 0
+					count_negative = 0
 
-				weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
-				weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
-				weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+					for individual_sentiments in decoded_json_content['response']['docs']:
+						if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+							count_neutral = count_neutral + 1
+						elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+							count_positive = count_positive + 1
+						else:
+							count_negative = count_negative + 1
+					weekly_positive_percentage = round((float(count_positive) / float(weekly_records_player)) * 100, 2)
+					weekly_negative_percentage = round((float(count_negative) / float(weekly_records_player)) * 100, 2)
+					weekly_neutral_percentage = round((float(count_neutral) / float(weekly_records_player)) * 100, 2)
+
+					weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
+					weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
+					weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+				else:
+					weekly_positive_string = str(weekly_positive_string) + str(0) + ', '
+					weekly_negative_string = str(weekly_negative_string) + str(0) + ', '
+					weekly_neutral_string = str(weekly_neutral_string) + str(0) + ', '
 
 			weekly_positive_string = weekly_positive_string[:-2]
 			weekly_negative_string = weekly_negative_string[:-2]
@@ -389,7 +554,7 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "articles":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': 'title ' + search_query + ' summary ' + search_query + ' content ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source', 'bq': 'title^50 summary^40 content^5', 'sort': 'date desc'})
+			{'q': 'title ' + search_query + ' summary ' + search_query + ' content ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40 content^5', 'sort': 'date desc'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
@@ -421,19 +586,24 @@ def getIndividualPlayerSentiment(UserPlayers):
 
 	total_records_player = player_sentiment_result['response']['numFound']
 	#print(total_records_player)
-	count_neutral = 0
-	count_positive = 0
-	count_negative = 0
-	for individual_sentiments in player_sentiment_result['response']['docs']:
-		if (individual_sentiments['targeted_sentiment'] == 'neutral'):
-			count_neutral = count_neutral + 1
-		elif (individual_sentiments['targeted_sentiment'] == 'positive'):
-			count_positive = count_positive + 1
-		else:
-			count_negative = count_negative + 1
-	positive_percentage = (float(count_positive) / float(total_records_player)) * 100
-	negative_percentage = (float(count_negative) / float(total_records_player)) * 100
-	neutral_percentage = (float(count_neutral) / float(total_records_player)) * 100
+	if total_records_player != 0:
+		count_neutral = 0
+		count_positive = 0
+		count_negative = 0
+		for individual_sentiments in player_sentiment_result['response']['docs']:
+			if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+				count_neutral = count_neutral + 1
+			elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+				count_positive = count_positive + 1
+			else:
+				count_negative = count_negative + 1
+		positive_percentage = (float(count_positive) / float(total_records_player)) * 100
+		negative_percentage = (float(count_negative) / float(total_records_player)) * 100
+		neutral_percentage = (float(count_neutral) / float(total_records_player)) * 100
+	else:
+		positive_percentage = 0
+		negative_percentage = 0
+		neutral_percentage = 0
 
 	player_dict = {'player_name': playerName, 'positive_tweet_count': count_positive, 'negative_tweet_count': count_negative, 'neutral_tweet_count': count_neutral, 'total_count': total_records_player, 'positive_percentage': positive_percentage, 'negative_percentage': negative_percentage, 'neutral_percentage': neutral_percentage}
 	# player_list.append(player_dict)
@@ -452,20 +622,59 @@ def getPlayerSentimentList(UserPlayers):
 
 			total_records_player = player_sentiment_result['response']['numFound']
 			#print(total_records_player)
-			count_neutral = 0
-			count_positive = 0
-			count_negative = 0
-			for individual_sentiments in player_sentiment_result['response']['docs']:
-				if (individual_sentiments['targeted_sentiment'] == 'neutral'):
-					count_neutral = count_neutral + 1
-				elif (individual_sentiments['targeted_sentiment'] == 'positive'):
-					count_positive = count_positive + 1
-				else:
-					count_negative = count_negative + 1
-			positive_percentage = (float(count_positive) / float(total_records_player)) * 100
-			negative_percentage = (float(count_negative) / float(total_records_player)) * 100
-			neutral_percentage = (float(count_neutral) / float(total_records_player)) * 100
+			if total_records_player != 0:
+				count_neutral = 0
+				count_positive = 0
+				count_negative = 0
+				for individual_sentiments in player_sentiment_result['response']['docs']:
+					if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+						count_neutral = count_neutral + 1
+					elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+						count_positive = count_positive + 1
+					else:
+						count_negative = count_negative + 1
+				positive_percentage = round((float(count_positive) / float(total_records_player)) * 100,2)
+				negative_percentage = round((float(count_negative) / float(total_records_player)) * 100,2)
+				neutral_percentage = round((float(count_neutral) / float(total_records_player)) * 100,2)
+			else:
+				positive_percentage = 0
+				negative_percentage = 0
+				neutral_percentage = 0
+			player_dict = {'player_name': playerName, 'positive_tweet_count': count_positive, 'negative_tweet_count': count_negative, 'neutral_tweet_count': count_neutral, 'total_count': total_records_player, 'positive_percentage': positive_percentage, 'negative_percentage': negative_percentage, 'neutral_percentage': neutral_percentage}
+			player_list.append(player_dict)
 
+	return player_list
+
+
+def getOtherPlayerSentimentList(OtherPlayers):
+	# pdb.set_trace()
+	player_list = []
+
+	for individual_player in OtherPlayers:
+			playerName = individual_player['player_name']
+			playerSearchTarget = individual_player['tag']
+			player_sentiment_result = makeSolrCall(playerSearchTarget, 'tweet')
+
+			total_records_player = player_sentiment_result['response']['numFound']
+			#print(total_records_player)
+			if total_records_player != 0:
+				count_neutral = 0
+				count_positive = 0
+				count_negative = 0
+				for individual_sentiments in player_sentiment_result['response']['docs']:
+					if (individual_sentiments['targeted_sentiment'] == 'neutral'):
+						count_neutral = count_neutral + 1
+					elif (individual_sentiments['targeted_sentiment'] == 'positive'):
+						count_positive = count_positive + 1
+					else:
+						count_negative = count_negative + 1
+				positive_percentage = round((float(count_positive) / float(total_records_player)) * 100,2)
+				negative_percentage = round((float(count_negative) / float(total_records_player)) * 100,2)
+				neutral_percentage = round((float(count_neutral) / float(total_records_player)) * 100,2)
+			else:
+				positive_percentage = 0
+				negative_percentage = 0
+				neutral_percentage = 0
 			player_dict = {'player_name': playerName, 'positive_tweet_count': count_positive, 'negative_tweet_count': count_negative, 'neutral_tweet_count': count_neutral, 'total_count': total_records_player, 'positive_percentage': positive_percentage, 'negative_percentage': negative_percentage, 'neutral_percentage': neutral_percentage}
 			player_list.append(player_dict)
 

@@ -13,6 +13,8 @@ class PlayerStats(models.Model):
     last_bat_impact = models.FloatField(default=0, null=True)
     team_name = models.CharField(max_length=100, null=True)
     player_match_name = models.CharField(max_length=100, null=True)
+    other_player = models.BooleanField(default=False)
+
     
 class UserPlayers(models.Model):
     player_name = models.ForeignKey(PlayerStats)
@@ -36,3 +38,11 @@ class PlayerMatchData(models.Model):
     match_status = models.CharField(max_length=500, null=True)
     caa = models.FloatField(default=0, null=True)
     last_bat_impact = models.FloatField(default=0, null=True)
+
+
+# class Entity(models.Model):
+#      tags = models.CharField(...)
+
+#     def split_tags(self):
+#         return self.tags.split(',')
+
