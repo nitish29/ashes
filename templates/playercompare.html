@@ -283,7 +283,7 @@
         </div>
         <div class="divider"></div>
         <div class="row">
-            <h6><center>Neutral Sentiment Timeline</center></h6>    
+            <h6><center>Popularity Score Timeline</center></h6>    
         </div>
         <div class="row">
             <div id="neutral_sentiment_div"></div>
@@ -625,7 +625,7 @@ var chartNeutralSentiment = c3.generate({
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
             ['x', '2016-04-12','2016-04-16','2016-04-20','2016-04-24'],
-            {% for key, value in neutral_weekly.items %}
+            {% for key, value in popularity_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
         ]
@@ -638,9 +638,14 @@ var chartNeutralSentiment = c3.generate({
             }
         },
         y: {
-          label: 'Percentage'
+          label: 'Popularity Score'
         },
-    }
+    }, 
+    grid: {
+      y: {
+        lines: [{value:0}]
+      }
+    },
 });
 
 </script>

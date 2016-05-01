@@ -46,7 +46,7 @@ def home(request):
 			bif_player_performace_dict[individual_player.player_name.player_name] = player_bif_string
 		#print(caa_player_performace_dict)
 		#pdb.set_trace()
-		postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict = makeSolrCallForSentimentsInRange("sentiments_for_all")
+		postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict, player_weekly_popularity_dict = makeSolrCallForSentimentsInRange("sentiments_for_all")
 
 		#date_range_str = '2016-03-18,' + '2016-03-22,' + '2016-03-26,' + '2016-03-30,' + '2016-04-03'
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
@@ -58,7 +58,7 @@ def home(request):
 
 		player_to_bench, player1_to_pick, player2_to_pick, week_fixtures = getRecommendationBasedOnUpcomingMatches()
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures' : week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures' : week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict, 'popularity_weekly': player_weekly_popularity_dict}
 
 	except:
 		
@@ -458,7 +458,7 @@ def playerCompareAction(request):
 			bif_player_performace_dict[individual_player.player_name.player_name] = player_bif_string
 		#print(caa_player_performace_dict)
 
-		postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict = makeSolrCallForSentimentsInRange("sentiments_for_all")
+		postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict, player_weekly_popularity_dict = makeSolrCallForSentimentsInRange("sentiments_for_all")
 
 		#date_range_str = '2016-03-18,' + '2016-03-22,' + '2016-03-26,' + '2016-03-30,' + '2016-04-03'
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
@@ -476,7 +476,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + my_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement,'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement,'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict, 'popularity_weekly': player_weekly_popularity_dict}
 				return render(request, "playercompare.html", context)
 		
 		if request.GET['allPlayerSelect']:
@@ -488,7 +488,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + other_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict, 'popularity_weekly': player_weekly_popularity_dict}
 				return render(request, "playercompare.html", context)
 
 		my_player_caa = my_player.caa
@@ -501,7 +501,7 @@ def playerCompareAction(request):
 			message = 'We recommend ' + other_player.player_name.player_name + ' over ' + my_player.player_name.player_name
 			print(message)
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict, 'popularity_weekly': player_weekly_popularity_dict}
 
 	except:
 		errors.append('Error Completing request')
@@ -587,6 +587,7 @@ def makeSolrCallForSentimentsInRange(queryType):
 	postive_weekly_sentiment_dict = {}
 	negative_weekly_sentiment_dict = {}
 	neutral_weekly_sentiment_dict = {}
+	player_weekly_popularity_dict = {}
 
 	#pdb.set_trace()
 	
@@ -597,6 +598,7 @@ def makeSolrCallForSentimentsInRange(queryType):
 		weekly_positive_string = ''
 		weekly_negative_string = ''
 		weekly_neutral_string = ''
+		weekly_positive_popularity_string = ''
 
 		if queryType == "sentiments_for_all":
 			
@@ -626,6 +628,11 @@ def makeSolrCallForSentimentsInRange(queryType):
 							count_positive = count_positive + 1
 						else:
 							count_negative = count_negative + 1
+
+					pdb.set_trace()
+					half_of_neutral = round(float(count_neutral) / 2, 2)
+					total_popularity_score = int( ( (count_positive + half_of_neutral) - count_negative ) / float( weekly_records_player ) )*100
+
 					weekly_positive_percentage = round((float(count_positive) / float(weekly_records_player)) * 100, 2)
 					weekly_negative_percentage = round((float(count_negative) / float(weekly_records_player)) * 100, 2)
 					weekly_neutral_percentage = round((float(count_neutral) / float(weekly_records_player)) * 100, 2)
@@ -633,20 +640,24 @@ def makeSolrCallForSentimentsInRange(queryType):
 					weekly_positive_string = str(weekly_positive_string) + str(weekly_positive_percentage) + ', '
 					weekly_negative_string = str(weekly_negative_string) + str(weekly_negative_percentage) + ', '
 					weekly_neutral_string = str(weekly_neutral_string) + str(weekly_neutral_percentage) + ', '
+					weekly_positive_popularity_string = str(weekly_positive_popularity_string) + str(total_popularity_score) + ', '
 				else:
 					weekly_positive_string = str(weekly_positive_string) + str(0) + ', '
 					weekly_negative_string = str(weekly_negative_string) + str(0) + ', '
 					weekly_neutral_string = str(weekly_neutral_string) + str(0) + ', '
+					weekly_positive_popularity_string = str(weekly_positive_popularity_string) + str(0) + ', '
 
 			weekly_positive_string = weekly_positive_string[:-2]
 			weekly_negative_string = weekly_negative_string[:-2]
 			weekly_neutral_string = weekly_neutral_string[:-2]
+			weekly_positive_popularity_string = weekly_positive_popularity_string[:-2]
 
 			postive_weekly_sentiment_dict[playerName] = weekly_positive_string
 			negative_weekly_sentiment_dict[playerName] = weekly_negative_string
 			neutral_weekly_sentiment_dict[playerName] = weekly_neutral_string
+			player_weekly_popularity_dict[playerName] = weekly_positive_popularity_string
 		
-	return postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict
+	return postive_weekly_sentiment_dict, negative_weekly_sentiment_dict, neutral_weekly_sentiment_dict, player_weekly_popularity_dict
 
 
 def makeSolrCall(search_query, queryType):
