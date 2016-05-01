@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-  <title>Player Compare</title>
+  <title>Crickster</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -53,7 +53,7 @@
       <div class="row">
         <div class="col s12">
           <h5 class="white-text">About Crickster</h5>
-          <p class="grey-text text-lighten-4">Managing your Cricket Fantasy League has never been so easy. Get news alerts, player recommendations, sentiment analysis timecharts, current team performance delivered with a personal touch! Crickster is a personalized feed engine designed exclusively for fantasy league fanatics, that provides you with a player comparison tool, player recommendation cards based on match statistics and social media buzz, helping you maximize your fantasy league points.</p>
+          <p class="grey-text text-lighten-4 justify" style="text-align: justify;">Managing your Cricket Fantasy League has never been so easy. Get news alerts, player recommendations, sentiment analysis timecharts, current team performance delivered with a personal touch! Crickster is a personalized feed engine designed exclusively for fantasy league fanatics, that provides you with a player comparison tool, player recommendation cards based on match statistics and social media buzz, helping you maximize your fantasy league points.</p>
         </div>
       </div>
     </div>
@@ -117,6 +117,9 @@ $(document).ready(function() {
     });
 
 });
+(function blink() { 
+    $('.blink_me').fadeOut(3000).fadeIn(1000, blink); 
+})();
 </script>
 
 

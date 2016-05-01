@@ -59,12 +59,12 @@
                 <div class="col s12">
                   <div class="card green lighten-5">
                     <div class="card-content black-text">
-                      <span class="card-title"><center><b>{{single_article.title}}</b></center></span>
+                      <span class="card-title"><center><b><a href="{{single_article.article_url}}" target="_blank" style="color:black" >{{single_article.title}}</a></b></center></span>
                             <table>
                                 <tbody>
                                   <tr>
                                     <td>Date</td>
-                                    <td>{{single_article.date}}</td>
+                                    <td>{{single_article.formatted_date |date:"F d, Y"}}</td>
                                   </tr>
                                   <tr>
                                     <td>Summary</td>
@@ -94,9 +94,6 @@
 
                                 </tbody>
                             </table>
-                            <div class="card-action white-text">
-                                 <a href="{{single_article.article_url}}" target="_blank" style="color:black" >Click here to read full article...</a>
-                            </div>
                     </div>
                   </div>
                 </div>
@@ -136,7 +133,7 @@
           <div class="col s12">
             <blockquote>
               <center>@{{single_news_tweet.username}}</center>
-              <p>{{single_news_tweet.date}}</p>
+              <p>{{single_news_tweet.formatted_date |date:"F d, Y"}}</p>
               <p>{{single_news_tweet.text}}</p>
               <p>Retweet Count : {{single_news_tweet.retweets}}&nbsp;&nbsp;&nbsp;
               Fav Count : {{single_news_tweet.favorites}}</p>
@@ -227,7 +224,7 @@
           <div class="col s12">
             <blockquote>
               <center>@{{single_tweet.username}}</center>
-              <p>{{single_tweet.date}}</p>
+              <p>{{single_tweet.formatted_date |date:"F d, Y"}}</p>
               <p>{{single_tweet.text}}</p>
               <p>Retweet Count : {{single_tweet.retweets}}&nbsp;&nbsp;&nbsp;
               Fav Count : {{single_tweet.favorites}}</p>

@@ -27,10 +27,10 @@
 
         <div class="row">
                 <div class="col s6 offset-s3">
-                  <div class="card red lighten-3">
+                  <div class="card red lighten-3 blink_me">
                     <div class="card-content black-text">
                       <span class="card-title"><center></center></span>
-                            <p>Hey! Looks like Kevin Pitersen has been injured, find a quick replacement to prevent your leaderboard rank from slipping.</p>
+                            <p class="center-align">Hey! Looks like Kevin Pitersen has been injured, find a quick replacement to prevent your leaderboard rank from slipping.</p>
                     </div>
                   </div>
                 </div>
@@ -48,8 +48,8 @@
                       {% for single_article in article_list %}
                           <div class="col s12">
                               <blockquote>
-                                  <center><b>{{single_article.title}}</b></center>
-                                  <p>{{single_article.date}}</p>
+                                  <center><b><a href="{{single_article.article_url}}" target="_blank" class="black-text">{{single_article.title}}</a></b></center>
+                                  <p>{{single_article.formatted_date|date:"F d, Y"}}</p>
                                   <p>{{single_article.summary}}</p>
                               </blockquote>
                               <p>
@@ -78,7 +78,7 @@
 
         <div class="row">
                 <h5><center>Want to know how your team is performing in IPL?</center></h5> 
-                <h6><center>Consistency Adjusted Average vs. Match Progress</center></h6>                
+                <h6><center>Match Progress vs. Consistency Adjusted Average</center></h6>                
         </div>
         <div class="row">
                 <div id="caalinechart" style="width: 900px; height: 500px;"></div>
@@ -90,7 +90,7 @@
          </div>
           <div class="divider"></div>
           <div class="row">
-                <h6><center>Batting Impact Factor vs. Match Progress</center></h6>    
+                <h6><center>Match Progress vs. Batting Impact Factor</center></h6>    
             </div>
         <div class="row">
                 <div id="biflinechart" style="width: 900px; height: 500px;"></div>
@@ -305,7 +305,7 @@
 
         <div class="row">
         <br/>
-                <div class="col s7">
+                <div class="col s6">
                   <div class="card red lighten-3">
                     <div class="card-content black-text">
                       <span class="card-title"><center>Player to Drop</center></span>
@@ -328,8 +328,10 @@
                             </table>                          
                     </div>
                   </div>
-                            <blockquote>Consider replacing {{player_to_bench.0}} with the following options suggested based on no of player matches scheduled in the upcoming week and ranked with the highest CAA and Batting Impact Score.</blockquote>
-                            
+                  <br/>
+                            <blockquote>Consider replacing {{player_to_bench.0}} with the following options suggested based on number of player matches scheduled in the upcoming week and ranked with the highest CAA and Batting Impact Score.</blockquote>        
+                           
+                   <br/>         
                   <div class="card light-green lighten-1">
                     <div class="card-content white-text">
                       <span class="card-title"><center>Suggested Players</center></span>
@@ -363,7 +365,7 @@
                     </div>
                   </div>
                 </div>
-                  <div class="col s5"> 
+                  <div class="col s6"> 
                             <h5 style="color:green"><center>Fixtures For Next Week</center></h5>                 
                             <table class = "bordered highlight">
                                 <thead>
@@ -500,7 +502,10 @@ var chart = c3.generate({
       x: {
         label: 'Match Number',
         min : 0
-      }
+      },
+      y: {
+        label: 'CAA'
+      },
 
     }
 });
@@ -537,7 +542,10 @@ var chart2 = c3.generate({
       x: {
         label: 'Match Number',
         min : 0
-      }
+      },
+      y: {
+        label: 'Batting Impact'
+      },
 
     }
 });
@@ -577,7 +585,10 @@ var chartPosSentiment = c3.generate({
             tick: {
                 format: '%Y-%m-%d'
             }
-        }
+        },
+        y: {
+          label: 'Percentage'
+        },
     }
 });
 
@@ -599,7 +610,10 @@ var chartNegativeSentiment = c3.generate({
             tick: {
                 format: '%Y-%m-%d'
             }
-        }
+        },
+        y: {
+          label: 'Percentage'
+        },
     }
 });
 
@@ -622,7 +636,10 @@ var chartNeutralSentiment = c3.generate({
             tick: {
                 format: '%Y-%m-%d'
             }
-        }
+        },
+        y: {
+          label: 'Percentage'
+        },
     }
 });
 

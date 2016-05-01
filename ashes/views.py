@@ -11,6 +11,7 @@ from datetime import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import math
 from django.db.models import Q
+from datetime import datetime
 
 
 def home(request):
@@ -194,6 +195,7 @@ def getPlayerNewsAlerts():
 						print("tag" + individual_player['tag'])
 						print("title" + single_article['title'])
 						print("summary" + single_article['summary'])
+						single_article['formatted_date'] = datetime.strptime(single_article['date'], "%Y-%m-%dT%H:%M:%SZ")
 						article_list.append(single_article)
 						article_already_added.append(single_article['title'].lower())
 
@@ -234,16 +236,20 @@ def playerPage(request):
 					all_tags = single_article['keywords'][0]
 					split_tags = [x.strip() for x in all_tags.split(',')]
 					single_article['formatted_tags'] = split_tags
+					#pdb.set_trace()
+					single_article['formatted_date'] = datetime.strptime(single_article['date'], "%Y-%m-%dT%H:%M:%SZ")
 
 				for single_tweet in player_wise_tweets['response']['docs']:
 					all_tags = single_tweet['keywords'][0]
 					split_tags = [x.strip() for x in all_tags.split(',')]
 					single_tweet['formatted_tags'] = split_tags
+					single_tweet['formatted_date'] = datetime.strptime(single_tweet['date'], "%Y-%m-%dT%H:%M:%SZ")
 
 				for single_tweet_news in player_news_channel_tweets['response']['docs']:
 					all_tags = single_tweet_news['keywords'][0]
 					split_tags = [x.strip() for x in all_tags.split(',')]
 					single_tweet_news['formatted_tags'] = split_tags
+					single_tweet_news['formatted_date'] = datetime.strptime(single_tweet_news['date'], "%Y-%m-%dT%H:%M:%SZ")
 
 				# pdb.set_trace()
 				print ('Forrmmaatttteeeddd///////////////////////')
