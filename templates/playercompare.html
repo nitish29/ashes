@@ -21,13 +21,13 @@
 
         {% if article_alert_dict %}
 
-        <div class="row">
-                <h5><center><u>News Alert</center></u></h5>    
+        <div class="row" >
+                <h5 style="color:red" class="blink_me"><center><b>News Alert</b></center></h5>    
         </div>
 
         <div class="row">
                 <div class="col s6 offset-s3">
-                  <div class="card red lighten-3 blink_me">
+                  <div class="card red lighten-3 ">
                     <div class="card-content black-text">
                       <span class="card-title"><center></center></span>
                             <p class="center-align">Hey! Looks like Kevin Pitersen has been injured, find a quick replacement to prevent your leaderboard rank from slipping.</p>
@@ -504,7 +504,7 @@ var chart = c3.generate({
         min : 0
       },
       y: {
-        label: 'CAA'
+        label: 'CAA score'
       },
 
     }
@@ -544,7 +544,7 @@ var chart2 = c3.generate({
         min : 0
       },
       y: {
-        label: 'Batting Impact'
+        label: 'Batting Impact Score'
       },
 
     }

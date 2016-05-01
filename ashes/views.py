@@ -655,6 +655,7 @@ def makeSolrCall(search_query, queryType):
 
 	#pdb.set_trace()
 	date_range_ipl = 'date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'
+	date_range_ipl_for_alert = 'date:[2016-04-15T00:00:00Z TO 2016-04-24T00:00:00Z]'
 
 	if queryType == "tweet":
 		request_params = urllib.parse.urlencode(
@@ -672,26 +673,26 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)', 'fq': date_range_ipl})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV) date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl,'fq' : 'username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)+date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 	elif queryType == "articleAlert":
 		request_params = urllib.parse.urlencode(
-			{'q': 'title ' + search_query + ' summary ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40', 'sort': 'date desc', 'fq': date_range_ipl})
+			{'q': 'title ' + search_query + ' summary ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40', 'sort': 'date desc', 'fq': date_range_ipl_for_alert})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
 	elif queryType == "tweetAlert":
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl_for_alert})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
