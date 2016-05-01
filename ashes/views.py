@@ -629,9 +629,10 @@ def makeSolrCallForSentimentsInRange(queryType):
 						else:
 							count_negative = count_negative + 1
 
-					pdb.set_trace()
+					#pdb.set_trace()
 					half_of_neutral = round(float(count_neutral) / 2, 2)
-					total_popularity_score = int( ( (count_positive + half_of_neutral) - count_negative ) / float( weekly_records_player ) )*100
+					#total_popularity_score = int(((((count_positive + half_of_neutral) - count_negative))*100 / float(weekly_records_player))
+					total_popularity_score = int((float((count_positive + half_of_neutral - count_negative)*100)/weekly_records_player))
 
 					weekly_positive_percentage = round((float(count_positive) / float(weekly_records_player)) * 100, 2)
 					weekly_negative_percentage = round((float(count_negative) / float(weekly_records_player)) * 100, 2)
