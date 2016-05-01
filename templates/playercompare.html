@@ -1,5 +1,5 @@
 {% extends 'index.html' %} {% block body_block %}
-
+{% load staticfiles %}
 
 
 <div class="container">
@@ -17,27 +17,95 @@
 
         </div> 
 
+         
+
+        {% if article_alert_dict %}
+
         <div class="row">
-                <h5><center>Wanna know how your team played in the Fantasy League?</center></h5> 
-                <h6><center>Consistency Adjusted Avg vs. Match Progress</center></h6>    
-            </div>
+                <h5><center><u>News Alert</center></u></h5>    
+        </div>
+
+        <div class="row">
+                <div class="col s6 offset-s3">
+                  <div class="card red lighten-3">
+                    <div class="card-content black-text">
+                      <span class="card-title"><center></center></span>
+                            <p>Hey! Looks like Kevin Pitersen has been injured, find a quick replacement to prevent your leaderboard rank from slipping.</p>
+                    </div>
+                  </div>
+                </div>
+        </div>
+
+        <div class="row">
+                <h6 class="flow-text">Related Articles</h6>    
+        </div>
+        <div class="row">
+          {% for player_name,player_data in article_alert_dict.items %}
+            
+            {% for phrase_article_map in player_data %}
+                {% for phrase,article_list in phrase_article_map.items %}
+                  {% if article_list %}
+                      {% for single_article in article_list %}
+                          <div class="col s12">
+                              <blockquote>
+                                  <center><b>{{single_article.title}}</b></center>
+                                  <p>{{single_article.date}}</p>
+                                  <p>{{single_article.summary}}</p>
+                              </blockquote>
+                              <p>
+                                  <div class="chip">
+                                    <img src='{% static "images/tag.jpeg" %}'>
+                                    {{phrase}}
+                                    </div>
+                             
+                                  <div class="chip">
+                                    <img src='{% static "images/tag.jpeg" %}'>
+                                     {{player_name}}
+                                    </div>
+                              </p>
+                          </div>
+                      {% endfor %}
+
+                  {% endif %}
+
+                {% endfor %}
+                
+            {% endfor %}
+          {% endfor %}
+        </div>
+        <div class="divider"></div>
+        {% endif %}
+
+        <div class="row">
+                <h5><center>Want to know how your team is performing in IPL?</center></h5> 
+                <h6><center>Consistency Adjusted Average vs. Match Progress</center></h6>                
+        </div>
         <div class="row">
                 <div id="caalinechart" style="width: 900px; height: 500px;"></div>
-          </div>
+        </div>
+        <div class="col s12">
+            <blockquote>
+                <p>Rather than using a traditional metric like batting average, which can be inflated because of good performances in only few matches, we use <b>Consistency Adjusted Average (CAA)</b> as a new performance metric that measures the consistency in a player's performance over the course of the tournament.</p>
+            </blockquote>
+         </div>
           <div class="divider"></div>
           <div class="row">
                 <h6><center>Batting Impact Factor vs. Match Progress</center></h6>    
             </div>
         <div class="row">
                 <div id="biflinechart" style="width: 900px; height: 500px;"></div>
-          </div>
-
+        </div>
+        <div class="col s12">
+            <blockquote>
+                <p><b>Batting Impact Factor</b> measures a player’s performance in the context of a given match. It not only takes into account total runs scored by a player but also the pace at which he scored his runs, his batting performance evaluated against other batsmen and conditions like strength of the opponent team, pressure situation, wickets that have fallen when the player comes into bat and other similar parameters.</p>
+            </blockquote>
+         </div>
         <div class="divider"></div>
         <div class="row">
-            <h5><center>Wanna Boost Your Fantasy Points?</center></h5>    
+            <h5><center>Need help Boosting your Fantasy Points?</center></h5>    
         </div>
         <div class="row">
-            <h6><center>Check out your Player Recommendations Based on Performance</center></h6>    
+            <h6><center>Check out our Player Recommendations Based on Performance</center></h6>    
         </div>
         <div class="row">
                 <div class="col s6">
@@ -73,6 +141,11 @@
                             </table>
                     </div>
                   </div>
+                  <div class="col s12">
+                    <blockquote>
+                      <p>{{recommendations.drop_player1.player_name}} and {{recommendations.drop_player2.player_name}} have the least consistency in your team and {{recommendations.drop_player3.player_name}}'s performance was poor in his last match.</p>
+                  </blockquote>
+                </div>
                 </div>
 
                 <div class="col s6">
@@ -108,13 +181,19 @@
                             </table>
                     </div>
                   </div>
+                  <div class="col s12">
+                    <blockquote>
+                      <p>{{recommendations.pick_player1.player_name}} and {{recommendations.pick_player2.player_name}} are one of the most consistent batsmen in the tournament while {{recommendations.pick_player3.player_name}} performed exceptionally well in his last match.</p>
+                  </blockquote>
+                </div>
                 </div>
 
-        </div>
+        </div
+        
 
         <div class="divider"></div>
         <div class="row">
-            <h6><center>Check out your Player Recommendations Based on Twitter Sentiments</center></h6>    
+            <h6><center>Check out our Player Recommendations Based on Twitter Sentiments</center></h6>    
         </div>
 
 
@@ -122,7 +201,7 @@
                 <div class="col s6">
                   <div class="card red lighten-3">
                     <div class="card-content black-text">
-                      <span class="card-title"><center>Drop Suggestions</center></span>
+                      <span class="card-title"><center>Player Drop Suggestions</center></span>
                             <table>
                                 <thead>
                                   <tr>
@@ -148,12 +227,17 @@
                             </table>
                     </div>
                   </div>
+                    <div class="col s12">
+                        <blockquote>
+                          <p>{{top_3_negative_players.player_1_name}} {{top_3_negative_players.player_2_name}} {{top_3_negative_players.player_3_name}} are the most critcized players on Twitter.</p>
+                      </blockquote>
+                    </div>
                 </div>
 
                 <div class="col s6">
                   <div class="card light-green lighten-1">
                     <div class="card-content white-text">
-                      <span class="card-title"><center>Pick Suggestions</center></span>
+                      <span class="card-title"><center>Player Pick Suggestions</center></span>
                             <table>
                                 <thead>
                                   <tr>
@@ -172,6 +256,14 @@
                             </table>
                     </div>
                   </div>
+                  <div class="col s12">
+                        <blockquote>
+                        <p>{% for key,value in top_3_pos_replacement.items %}
+                                  {{key}} 
+                                {% endfor %} have the most positive public sentiments on Twitter.
+                          </p>
+                      </blockquote>
+                    </div>
                 </div>
 
         </div>
@@ -181,7 +273,7 @@
 
         <div class="divider"></div>
         <div class="row">
-            <h5><center>Twitter Sentiment Analysis</center></h5>    
+            <h5><center>Twitter Sentiment Analysis of your Team</center></h5>    
         </div>
         <div class="row">
             <h6><center>Positive Sentiment Timeline</center></h6>    
@@ -208,7 +300,7 @@
         <div class="divider"></div>
         <br/>
         <div class="row">
-            <h5><center>Check out your Player Recommendations Based on Fixture </center></h5>    
+            <h5><center>Check out our Player Recommendations Based on Upcoming Fixtures </center></h5>    
         </div>
 
         <div class="row">
@@ -290,6 +382,7 @@
                     </div>
 
         </div>
+        <br/>
 
         <form method="get" action="/playerCompareAction">
             
@@ -472,7 +565,7 @@ var chartPosSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
+            ['x', '2016-04-12','2016-04-16','2016-04-20','2016-04-24'],
             {% for key, value in positive_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
@@ -494,7 +587,7 @@ var chartNegativeSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
+            ['x', '2016-04-12','2016-04-16','2016-04-20','2016-04-24'],
             {% for key, value in negative_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}
@@ -517,7 +610,7 @@ var chartNeutralSentiment = c3.generate({
         x: 'x',
 //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
         columns: [
-            ['x', '2016-04-11','2016-04-15','2016-04-19','2016-04-23','2016-04-29'],
+            ['x', '2016-04-12','2016-04-16','2016-04-20','2016-04-24'],
             {% for key, value in neutral_weekly.items %}
               ['{{key}}', {{value}}],
             {% endfor %}

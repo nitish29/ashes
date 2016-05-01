@@ -10,20 +10,21 @@ from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import math
+from django.db.models import Q
 
 
 def home(request):
 	try:
 		errors = []
-
-		getRecommendationBasedOnUpcomingMatches()
+		#pdb.set_trace()
+		my_player_article_dict = getPlayerNewsAlerts()
+		my_player_tweet_dict = getPlayerAlertFromTweets()
 		
 		recommendations = playerRecommendation()
 		#print(recommendations)
 
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
-		#pdb.set_trace()
 		caa_player_performace_dict = {}
 		bif_player_performace_dict = {}
 
@@ -56,7 +57,7 @@ def home(request):
 
 		player_to_bench, player1_to_pick, player2_to_pick, week_fixtures = getRecommendationBasedOnUpcomingMatches()
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures' : week_fixtures}
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures' : week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
 
 	except:
 		
@@ -106,6 +107,111 @@ def playerRecommendation():
 	'pick_player2': pick_player2, 'pick_player3': pick_player3}
 
 
+def getPlayerAlertFromTweets():
+	try:
+		#pdb.set_trace()
+		errors = []
+		phrase_string_list = ['injury', 'ruled out', 'replace']
+
+		my_player_tweet_dict = {}
+
+		my_players = PlayerStats.objects.values('player_name', 'tag').filter(Q(tag='kevin pietersen') | Q(tag='du plessis') | Q(tag='finch'))
+		
+		for individual_player in my_players:
+			my_player_tweet_dict[individual_player['player_name']] = []
+
+		for phrase in phrase_string_list:
+
+			solr_json_response = makeSolrCall(phrase, 'tweetAlert')
+			print('*********solr response alert from IPL cricketTweetsCore ************')
+			print(solr_json_response)
+
+			for individual_player in my_players:
+				
+				my_player_tag = individual_player['tag']
+				tweet_list = []
+
+				for single_tweet in solr_json_response['response']['docs']:
+					#all_tags = single_article['keywords'][0]
+					#split_tags = [x.strip() for x in all_tags.split(',')]
+					#single_article['formatted_tags'] = split_tags
+					if my_player_tag in single_tweet['text'].lower():
+						#pdb.set_trace()
+						print("youuuuu" + individual_player['player_name'])
+						print("tag" + individual_player['tag'])
+						print("title" + single_tweet['title'])
+						print("summary" + single_tweet['summary'])
+						tweet_list.append(single_tweet)
+
+					else:
+						print("bhak tweet**************************************************")
+						#print("meeee" + individual_player['player_name'])
+						#print("tag" + individual_player['tag'])
+						#print("title" + single_article['title'])
+						#print("summary" + single_article['summary'])
+						#print("bhak**************************************************")
+				my_player_tweet_dict[individual_player['player_name']].append({phrase: tweet_list})
+		print(my_player_tweet_dict)
+		return my_player_tweet_dict
+
+	except:
+		errors.append('Error fetching player alerts from tweets')
+
+
+def getPlayerNewsAlerts():
+
+	try:
+		#pdb.set_trace()
+		errors = []
+		phrase_string_list = ['ruled out', 'injury', 'replace']
+
+		article_already_added = []
+
+		my_player_article_dict = {}
+
+		my_players = PlayerStats.objects.values('player_name', 'tag').filter(Q(tag='kevin pietersen') | Q(tag='du plessis') | Q(tag='finch'))
+		
+		for individual_player in my_players:
+			my_player_article_dict[individual_player['player_name']] = []
+
+		for phrase in phrase_string_list:
+
+			solr_json_response = makeSolrCall(phrase, 'articleAlert')
+			print('*********solr response alert************')
+			print(solr_json_response)
+
+			for individual_player in my_players:
+				
+				my_player_tag = individual_player['tag']
+				article_list = []
+
+				for single_article in solr_json_response['response']['docs']:
+					#all_tags = single_article['keywords'][0]
+					#split_tags = [x.strip() for x in all_tags.split(',')]
+					#single_article['formatted_tags'] = split_tags
+					if my_player_tag in single_article['title'].lower() or my_player_tag in single_article['summary'].lower() and single_article['title'].lower() not in article_already_added:
+						print("meeee" + individual_player['player_name'])
+						print("tag" + individual_player['tag'])
+						print("title" + single_article['title'])
+						print("summary" + single_article['summary'])
+						article_list.append(single_article)
+						article_already_added.append(single_article['title'].lower())
+
+					else:
+						print("bhak**************************************************")
+						#print("meeee" + individual_player['player_name'])
+						#print("tag" + individual_player['tag'])
+						#print("title" + single_article['title'])
+						#print("summary" + single_article['summary'])
+						#print("bhak**************************************************")
+				my_player_article_dict[individual_player['player_name']].append({phrase: article_list})
+		print(my_player_article_dict)
+		return my_player_article_dict
+
+	except:
+		errors.append('Error fetching player alerts from articles')
+
+
 def playerPage(request):
 		try:
 			errors = []
@@ -118,11 +224,11 @@ def playerPage(request):
 				player_news_channel_tweets = makeSolrCall(my_player.search_target, 'newsTweets')
 
 
-				print(player_wise_articles['response']['docs'])
+				print(player_news_channel_tweets['response']['docs'])
 				print ('Type///////////////////////')
-				print(type(player_wise_articles['response']['docs']))
-				print ('Articles Count Check ??????????')
-				print(len(player_wise_articles['response']['docs']))
+				print(type(player_news_channel_tweets['response']['docs']))
+				print ('News Channel Tweet Count Check ??????????')
+				print(len(player_news_channel_tweets['response']['docs']))
 
 				for single_article in player_wise_articles['response']['docs']:
 					all_tags = single_article['keywords'][0]
@@ -309,18 +415,10 @@ def myPlayerNegativeSentimentAnalysis():
 	return negative_chart_dict
 
 def otherPlayerPositiveSentimentAnalysis():
-	#pdb.set_trace()
 	other_player_objects = PlayerStats.objects.values('player_name', 'tag', 'other_player').filter(other_player=True)
 	get_player_list = getOtherPlayerSentimentList(other_player_objects)
 
 	player_list_sorted_by_positive = sortPlayerList(get_player_list, 'positive_percentage')
-
-	# player_positive_rank1 = player_list_sorted_by_positive[0]
-	# player_positive_rank2 = player_list_sorted_by_positive[1]
-	# player_positive_rank3 = player_list_sorted_by_positive[2]
-
-	# positive_chart_dict = {'player_1_name': player_positive_rank1['player_name'], 'player_1_percentage': player_positive_rank1['positive_percentage'], 'player_2_name': player_positive_rank2['player_name'], 'player_2_percentage': player_positive_rank2['positive_percentage'], 'player_3_name': player_positive_rank3['player_name'], 'player_3_percentage': player_positive_rank3['positive_percentage']}
-
 	return player_list_sorted_by_positive
 
 def playerCompareAction(request):
@@ -329,6 +427,9 @@ def playerCompareAction(request):
 		#pdb.set_trace()
 		players = PlayerStats.objects.all()
 		userPlayers = UserPlayers.objects.all()
+
+		my_player_article_dict = getPlayerNewsAlerts()
+		my_player_tweet_dict = getPlayerAlertFromTweets()
 
 		recommendations = playerRecommendation()
 
@@ -343,8 +444,7 @@ def playerCompareAction(request):
 			for individual_match_data in player_match_data:
 				player_caa_string = str(player_caa_string) + str(individual_match_data['caa']) + ', '
 				player_bif_string = str(player_bif_string) + str(individual_match_data['last_bat_impact']) + ', '
-			#print(player_caa_string)
-			#print(player_bif_string)
+			
 			player_caa_string = player_caa_string[:-2]
 			player_bif_string = player_bif_string[:-2]
 			# caa_integer_list = [float(x) for x in player_caa_string.split(',')]
@@ -370,7 +470,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + my_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement,'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures': week_fixtures}
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement,'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick , 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
 				return render(request, "playercompare.html", context)
 		
 		if request.GET['allPlayerSelect']:
@@ -382,7 +482,7 @@ def playerCompareAction(request):
 			else:
 				message = 'Oops! ' + other_selected_player + ' didnt play in this week. Please select another player.'
 				print(message)
-				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures }
+				context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
 				return render(request, "playercompare.html", context)
 
 		my_player_caa = my_player.caa
@@ -395,7 +495,7 @@ def playerCompareAction(request):
 			message = 'We recommend ' + other_player.player_name.player_name + ' over ' + my_player.player_name.player_name
 			print(message)
 
-		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures }
+		context = {'allPlayerList': players, 'myPlayerList': userPlayers, 'myPlayer': my_player, 'otherPlayer': other_player, 'message': message, 'caa_dict': caa_player_performace_dict, 'bif_dict': bif_player_performace_dict, 'positive_weekly': postive_weekly_sentiment_dict, 'negative_weekly': negative_weekly_sentiment_dict, 'neutral_weekly': neutral_weekly_sentiment_dict, 'date_range': date_range_str, 'recommendations': recommendations, 'top_3_negative_players' : top_3_negative_players, 'top_3_pos_replacement' : top_3_pos_replacement, 'player_to_bench': player_to_bench, 'player1_to_pick': player1_to_pick , 'player2_to_pick' :player2_to_pick, 'fixtures': week_fixtures, 'article_alert_dict': my_player_article_dict, 'tweet_alert_dict': my_player_tweet_dict}
 
 	except:
 		errors.append('Error Completing request')
@@ -407,7 +507,9 @@ def playerCompareAction(request):
 def makeSolrCallForSinglePlayerSentiment(individual_player):
 
 	#date_range_wt20 = ['date:[2016-03-15T00:00:00Z TO 2016-03-18T00:00:00Z]', 'date:[2016-03-19T00:00:00Z TO 2016-03-22T00:00:00Z]', 'date:[2016-03-23T00:00:00Z TO 2016-03-26T00:00:00Z]', 'date:[2016-03-27T00:00:00Z TO 2016-03-30T00:00:00Z]', 'date:[2016-03-31T00:00:00Z TO 2016-04-03T00:00:00Z]']
-	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
+	# date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
+
+	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]']
 	
 	player_weekly_sentiment_dict = {}
 	playerSearchTarget = individual_player.search_target
@@ -472,7 +574,9 @@ def makeSolrCallForSentimentsInRange(queryType):
 
 	# date_range_wt20 = ['date:[2016-03-15T00:00:00Z TO 2016-03-18T00:00:00Z]','date:[2016-03-19T00:00:00Z TO 2016-03-22T00:00:00Z]','date:[2016-03-23T00:00:00Z TO 2016-03-26T00:00:00Z]','date:[2016-03-27T00:00:00Z TO 2016-03-30T00:00:00Z]','date:[2016-03-31T00:00:00Z TO 2016-04-03T00:00:00Z]']
 
-	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
+	# date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
+
+	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]']
 
 	postive_weekly_sentiment_dict = {}
 	negative_weekly_sentiment_dict = {}
@@ -544,6 +648,7 @@ def makeSolrCall(search_query, queryType):
 	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
 
 	#pdb.set_trace()
+	date_range_ipl = 'date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'
 
 	if queryType == "tweet":
 		request_params = urllib.parse.urlencode(
@@ -554,21 +659,33 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "articles":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': 'title ' + search_query + ' summary ' + search_query + ' content ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40 content^5', 'sort': 'date desc'})
+			{'q': 'title ' + search_query + ' summary ' + search_query + ' content ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40 content^5', 'sort': 'date desc', 'fq': date_range_ipl})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
 									 request_params)
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)', 'fq': date_range_ipl})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(ICC,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl,'fq' : 'username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
+									 request_params)
+	elif queryType == "articleAlert":
+		request_params = urllib.parse.urlencode(
+			{'q': 'title ' + search_query + ' summary ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40', 'sort': 'date desc', 'fq': date_range_ipl})
+		request_params = request_params.encode('utf-8')
+		req = urllib.request.urlopen(settings.SOLR_BASEURL_ARTICLES,
+									 request_params)
+	elif queryType == "tweetAlert":
+		request_params = urllib.parse.urlencode(
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
