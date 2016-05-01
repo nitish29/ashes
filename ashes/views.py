@@ -52,7 +52,7 @@ def home(request):
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
 
 		top_3_negative_players, top_3_pos_replacement = sentimentWiseRecommendation()
-		pdb.set_trace()
+		
 		print('****************************')
 		print(top_3_pos_replacement)
 
