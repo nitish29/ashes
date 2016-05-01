@@ -52,7 +52,7 @@ def home(request):
 		date_range_str = '2016-04-12,' + '2016-04-16,' + '2016-04-20,' + '2016-04-24,' + '2016-04-29'
 
 		top_3_negative_players, top_3_pos_replacement = sentimentWiseRecommendation()
-
+		pdb.set_trace()
 		print('****************************')
 		print(top_3_pos_replacement)
 
@@ -398,6 +398,8 @@ def sentimentWiseRecommendation():
 			if other_pos_sentiment_percentage >= least_negative_player_pos_percentage and other_neg_sentiment_percentage <= least_negative_player_neg_percentage and count < 3:
 				other_recommendation_dict[individual_player['player_name']] = other_pos_sentiment_percentage
 				count = count + 1
+		#sort positive player dictionary by values before sending
+		other_recommendation_dict =  sorted(other_recommendation_dict.items(), key=lambda x:x[1], reverse=True)
 
 		return my_players_top_neg_dict, other_recommendation_dict
 
@@ -827,6 +829,8 @@ def ascSortPlayerList(player_list_to_sort, sortingParameter):
 	sortedPlayerlist = sorted(player_list_to_sort, key=itemgetter(sortingParameter)) 
 	#print(sortedPlayerlist)
 	return sortedPlayerlist
+
+
 
 
 def playerSentimentAnalysis(userPlayers):

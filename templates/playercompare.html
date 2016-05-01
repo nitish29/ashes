@@ -246,10 +246,10 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                {% for key,value in top_3_pos_replacement.items %}
+                                {% for data in top_3_pos_replacement %}
                                   <tr>
-                                    <td>{{key}}</td>
-                                    <td>{{value}}</td>
+                                    <td>{{data.0}}</td>
+                                    <td>{{data.1}}</td>
                                   </tr>
                                 </tbody>
                                 {% endfor %}
@@ -258,8 +258,8 @@
                   </div>
                   <div class="col s12">
                         <blockquote>
-                        <p>{% for key,value in top_3_pos_replacement.items %}
-                                  {{key}} 
+                        <p>{% for data in top_3_pos_replacement %}
+                                  {{data.0}} 
                                 {% endfor %} have the most positive public sentiments on Twitter.
                           </p>
                       </blockquote>
