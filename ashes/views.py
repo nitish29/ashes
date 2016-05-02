@@ -693,7 +693,7 @@ def makeSolrCall(search_query, queryType):
 	elif queryType == "playerTweets":
 		#pdb.set_trace()
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV) date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': '-username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV) date:[2016-04-09T00:00:00Z TO 2016-04-29T00:00:00Z]'})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
