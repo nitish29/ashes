@@ -327,7 +327,7 @@ def getRecommendationBasedOnUpcomingMatches():
 	#pdb.set_trace()
 	userPlayers = PlayerStats.objects.values('player_name', 'team_name').filter(other_player=False)
 	otherPlayers = PlayerStats.objects.values('player_name', 'team_name', 'caa', 'last_bat_impact').filter(other_player=True)
-	match_count_dict, week_fixtures = getFixtures('week1')
+	match_count_dict, week_fixtures = getFixtures('week2')
 	my_player_match_dict = {}
 	other_player_match_dict = {}
 
@@ -378,12 +378,14 @@ def getRecommendationBasedOnUpcomingMatches():
 def sentimentWiseRecommendation():
 	
 	try:
-		#pdb.set_trace()
 		errors = []
 		my_players_top_neg_dict = myPlayerNegativeSentimentAnalysis()
 		
+		
 		other_players_pos_list = otherPlayerPositiveSentimentAnalysis()
-
+		print("*************otherpoooss***********")
+		print(other_players_pos_list)
+		#pdb.set_trace()
 		other_recommendation_dict = {}
 
 		least_negative_player_neg_percentage = my_players_top_neg_dict['player_3_negative_percentage']
@@ -391,14 +393,16 @@ def sentimentWiseRecommendation():
 
 		count = 0
 		for individual_player in other_players_pos_list:
+			if count==3:
+				break
+			else:
+				other_pos_sentiment_percentage = individual_player['positive_percentage'] 
+				other_neg_sentiment_percentage = individual_player['negative_percentage']
 
-			other_pos_sentiment_percentage = individual_player['positive_percentage'] 
-			other_neg_sentiment_percentage = individual_player['negative_percentage']
-
-			if other_pos_sentiment_percentage >= least_negative_player_pos_percentage and other_neg_sentiment_percentage <= least_negative_player_neg_percentage and count < 3:
+				# if other_pos_sentiment_percentage >= least_negative_player_pos_percentage and other_neg_sentiment_percentage <= least_negative_player_neg_percentage and count < 3:
 				other_recommendation_dict[individual_player['player_name']] = other_pos_sentiment_percentage
 				count = count + 1
-		#sort positive player dictionary by values before sending
+			#sort positive player dictionary by values before sending
 		other_recommendation_dict =  sorted(other_recommendation_dict.items(), key=lambda x:x[1], reverse=True)
 
 		return my_players_top_neg_dict, other_recommendation_dict
@@ -423,6 +427,7 @@ def myPlayerNegativeSentimentAnalysis():
 	return negative_chart_dict
 
 def otherPlayerPositiveSentimentAnalysis():
+	#pdb.set_trace()
 	other_player_objects = PlayerStats.objects.values('player_name', 'tag', 'other_player').filter(other_player=True)
 	get_player_list = getOtherPlayerSentimentList(other_player_objects)
 
@@ -517,7 +522,7 @@ def makeSolrCallForSinglePlayerSentiment(individual_player):
 	#date_range_wt20 = ['date:[2016-03-15T00:00:00Z TO 2016-03-18T00:00:00Z]', 'date:[2016-03-19T00:00:00Z TO 2016-03-22T00:00:00Z]', 'date:[2016-03-23T00:00:00Z TO 2016-03-26T00:00:00Z]', 'date:[2016-03-27T00:00:00Z TO 2016-03-30T00:00:00Z]', 'date:[2016-03-31T00:00:00Z TO 2016-04-03T00:00:00Z]']
 	# date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
 
-	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]']
+	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
 	
 	player_weekly_sentiment_dict = {}
 	playerSearchTarget = individual_player.search_target
@@ -584,7 +589,7 @@ def makeSolrCallForSentimentsInRange(queryType):
 
 	# date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]']
 
-	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]']
+	date_range_wt20 = ['date:[2016-04-09T00:00:00Z TO 2016-04-12T00:00:00Z]','date:[2016-04-13T00:00:00Z TO 2016-04-16T00:00:00Z]','date:[2016-04-17T00:00:00Z TO 2016-04-20T00:00:00Z]','date:[2016-04-21T00:00:00Z TO 2016-04-24T00:00:00Z]','date:[2016-04-25T00:00:00Z TO 2016-04-28T00:00:00Z]']
 
 	postive_weekly_sentiment_dict = {}
 	negative_weekly_sentiment_dict = {}
@@ -668,8 +673,9 @@ def makeSolrCall(search_query, queryType):
 	#curl --globoff 'http://localhost:8983/solr/cricketTweetsCore/select?&wt=json&q=*kohli*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=100&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-25T00:00:00Z%20TO%202016-04-03T00:00:00Z]'
 
 	#pdb.set_trace()
-	date_range_ipl = 'date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'
-	date_range_ipl_for_alert = 'date:[2016-04-15T00:00:00Z TO 2016-04-24T00:00:00Z]'
+	date_range_ipl = 'date:[2016-04-09T00:00:00Z TO 2016-04-28T00:00:00Z]'
+	date_range_ipl_for_alert = 'date:[2016-04-25T00:00:00Z TO 2016-04-29T00:00:00Z]'
+	date_range_ipl_for_alert_tweet = 'date:[2016-04-25T00:00:00Z TO 2016-04-28T00:00:00Z]'
 
 	if queryType == "tweet":
 		request_params = urllib.parse.urlencode(
@@ -699,7 +705,7 @@ def makeSolrCall(search_query, queryType):
 		#req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 		#							 request_params)
 		search_query = urllib.parse.quote_plus(search_query)
-		request_params = '&wt=json&q=*'+search_query+'*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=5&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-09T00:00:00Z%20TO%202016-04-23T00:00:00Z]&fq=username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'
+		request_params = '&wt=json&q=*'+search_query+'*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=5&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-09T00:00:00Z%20TO%202016-04-29T00:00:00Z]&fq=username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'
 		request = Request(settings.SOLR_BASEURL_TWEET + '?' + request_params)
 		req = urlopen(request)
 
@@ -711,7 +717,7 @@ def makeSolrCall(search_query, queryType):
 									 request_params)
 	elif queryType == "tweetAlert":
 		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl_for_alert})
+			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': date_range_ipl_for_alert_tweet})
 		request_params = request_params.encode('utf-8')
 		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 									 request_params)
