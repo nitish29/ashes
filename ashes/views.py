@@ -698,6 +698,7 @@ def makeSolrCall(search_query, queryType):
 		#request_params = request_params.encode('utf-8')
 		#req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
 		#							 request_params)
+		search_query = urllib.parse.quote_plus(search_query)
 		request_params = '&wt=json&q=*'+search_query+'*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=5&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-09T00:00:00Z%20TO%202016-04-23T00:00:00Z]&fq=username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'
 		request = Request(settings.SOLR_BASEURL_TWEET + '?' + request_params)
 		req = urlopen(request)
