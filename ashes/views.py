@@ -244,7 +244,7 @@ def playerPage(request):
 					split_tags = [x.strip() for x in all_tags.split(',')]
 					single_tweet['formatted_tags'] = split_tags
 					single_tweet['formatted_date'] = datetime.strptime(single_tweet['date'], "%Y-%m-%dT%H:%M:%SZ")
-
+				#pdb.set_trace()
 				for single_tweet_news in player_news_channel_tweets['response']['docs']:
 					all_tags = single_tweet_news['keywords'][0]
 					split_tags = [x.strip() for x in all_tags.split(',')]
@@ -693,11 +693,15 @@ def makeSolrCall(search_query, queryType):
 									 request_params)
 	elif queryType == "newsTweets":
 		#pdb.set_trace()
-		request_params = urllib.parse.urlencode(
-			{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)+date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'})
-		request_params = request_params.encode('utf-8')
-		req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
-									 request_params)
+		#request_params = urllib.parse.urlencode(
+		#	{'q': '*' + search_query + '*', 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'keywords entity text', 'bq': 'date^20 retweets^10 favorites^5', 'sort': 'date desc,retweets desc,favorites desc', 'fq': 'username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV) date:[2016-04-09T00:00:00Z TO 2016-04-23T00:00:00Z]'})
+		#request_params = request_params.encode('utf-8')
+		#req = urllib.request.urlopen(settings.SOLR_BASEURL_TWEET,
+		#							 request_params)
+		request_params = '&wt=json&q=*'+search_query+'*&defType=dismax&qf=keywords+entity+text&indent=true&start=0&rows=5&bq=date^20+retweets^10+favorites^5&sort=date+desc,retweets+desc,favorites+desc&fq=date:[2016-03-09T00:00:00Z%20TO%202016-04-23T00:00:00Z]&fq=username:(FirstpostSports,ESPNcricinfo,cricbuzz,CricketNDTV)'
+		request = Request(settings.SOLR_BASEURL_TWEET + '?' + request_params)
+		req = urlopen(request)
+
 	elif queryType == "articleAlert":
 		request_params = urllib.parse.urlencode(
 			{'q': 'title ' + search_query + ' summary ' + search_query, 'wt': 'json', 'indent': 'true', 'rows': 500, 'start': 0, 'defType': 'dismax', 'qf': 'title summary', 'fl': 'title,article_url,date,summary,source,keywords,entity', 'bq': 'title^50 summary^40', 'sort': 'date desc', 'fq': date_range_ipl_for_alert})
